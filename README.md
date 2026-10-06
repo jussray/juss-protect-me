@@ -27,6 +27,17 @@ Traditional security suites are strong at malware, web protection, VPN, identity
 - SHA-256 integrity-only receipts that remain `inferred`, never `verified`;
 - exact identity-bound staleness evaluation.
 
+`src/device-evidence.mjs` adds the provider-neutral device evidence boundary:
+
+- server-HMAC pseudonymous device references so raw provider visitor/device identifiers do not enter receipts;
+- strict allow-listed observation fields instead of storing raw provider payloads;
+- normalized evidence from Fingerprint, Cloudflare, Supabase, app/device sensors, or future providers;
+- deterministic multi-sensor risk assessment for automation, network, tampering, privacy-mode, reputation, and velocity signals;
+- step-up rather than automatic blocking for VPN/incognito evidence alone;
+- recommendation-only output with `canAuthorize=false`, preserving the separate authority kernel.
+
+No third-party device-intelligence provider is required by the kernel. Provider SDKs and live adapters remain integration concerns and must prove their own runtime identity and evidence references before production claims.
+
 Run:
 
 ```bash
@@ -35,7 +46,7 @@ npm test
 
 ## Model One supremacy target
 
-This repository does **not** claim that Model One already outperforms Norton, McAfee, or any independently tested security suite. Superiority becomes a release claim only after real-path and independent evidence.
+This repository does **not** claim that Model One already outperforms Norton, McAfee, Fingerprint, or any independently tested security or device-intelligence suite. Superiority becomes a release claim only after real-path and independent evidence.
 
 The product target is to win on two axes at once:
 
@@ -67,4 +78,4 @@ They may exchange evidence through a documented contract, but they do not share 
 
 ## Status
 
-`KERNEL_IMPLEMENTED / PRODUCT_NOT_YET_LAB_VALIDATED`
+`KERNEL_IMPLEMENTED / DEVICE_EVIDENCE_CONTRACT_IMPLEMENTED / LIVE_SENSOR_INTEGRATION_NOT_YET_PROVEN / PRODUCT_NOT_YET_LAB_VALIDATED`

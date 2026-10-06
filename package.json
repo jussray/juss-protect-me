@@ -8,13 +8,15 @@
     "./model-one": "./src/model-one.mjs",
     "./hallway": "./src/hallway.mjs",
     "./authority": "./src/authority.mjs",
-    "./counter-pressure": "./src/counter-pressure.mjs"
+    "./counter-pressure": "./src/counter-pressure.mjs",
+    "./device-evidence": "./src/device-evidence.mjs"
   },
   "scripts": {
-    "test": "node --test test/model-one.test.mjs test/hallway.test.mjs test/authority.test.mjs test/counter-pressure.test.mjs",
+    "test": "node --test test/model-one.test.mjs test/hallway.test.mjs test/authority.test.mjs test/counter-pressure.test.mjs test/device-evidence.test.mjs",
     "test:hallway": "node --test test/hallway.test.mjs",
     "test:authority": "node --test test/authority.test.mjs",
-    "test:pressure": "node --test test/counter-pressure.test.mjs"
+    "test:pressure": "node --test test/counter-pressure.test.mjs",
+    "test:device": "node --test test/device-evidence.test.mjs"
   },
   "engines": {
     "node": ">=20"
