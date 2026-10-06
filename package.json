@@ -2,10 +2,15 @@
   "name": "juss-protect-me",
   "version": "0.1.0",
   "private": true,
-  "description": "Protect Me Model One — privacy-first personal cyber defense with identity-bound evidence and policy-separated containment.",
+  "description": "Protect Me Model One — privacy-first personal cyber defense with identity-bound evidence, evidence-only hallways, and policy-separated containment.",
   "type": "module",
+  "exports": {
+    "./model-one": "./src/model-one.mjs",
+    "./hallway": "./src/hallway.mjs"
+  },
   "scripts": {
-    "test": "node --test test/model-one.test.mjs"
+    "test": "node --test test/model-one.test.mjs test/hallway.test.mjs",
+    "test:hallway": "node --test test/hallway.test.mjs"
   },
   "engines": {
     "node": ">=20"
