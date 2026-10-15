@@ -55,7 +55,7 @@ function walkKeys(value, path = '$') {
   if (!value || typeof value !== 'object') return;
   for (const [key, child] of Object.entries(value)) {
     if (SENSITIVE_KEY.test(key)) {
-      throw new Error(`raw sensitive field is forbidden in evidence: ${path}.${key}`);
+      throw new Error('raw sensitive field is forbidden in evidence');
     }
     walkKeys(child, `${path}.${key}`);
   }

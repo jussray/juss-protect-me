@@ -140,3 +140,19 @@ test('privacy guard blocks raw conversation, identity, and credentials in securi
     ...base, identity: { ...identity, metadata: { cookie: 'sensitive' } },
   }), /raw sensitive field is forbidden in evidence/);
 });
+
+
+test('redteam evidence aliases and transcript keys never reach receipts', () => {
+  const sensitiveFieldNames = ['client_secret', 'private_key', 'accessToken', 'refresh_token', 'api_key', 'set_cookie', 'chat_history'];
+  const sensitiveStrings = [
+    'client_secret=SYNTHETIC_SECRET_VALUE',
+    'private_key=SYNTHETIC_SECRET_VALUE',
+    'set-cookie: session=sampletoken123',
+  ];
+  for (const field of sensitiveFieldNames) {
+    assert.throws(() => ({metadata, summary}) => createEvidenceReceipt({id:'PM1-REDACT-001',event:{...event,summary:summary??event.summary,metadata},identity,evidenceRefs:['sensor://browser/verdict/129'],observedAt:'2026-10-05T18:00:00.000Z',secret})({ metadata: { [field]: 'SYNTHETIC_VALUE' } }), /sensitive|private/);
+  }
+  for (const summary of sensitiveStrings) {
+    assert.throws(() => ({metadata, summary}) => createEvidenceReceipt({id:'PM1-REDACT-001',event:{...event,summary:summary??event.summary,metadata},identity,evidenceRefs:['sensor://browser/verdict/129'],observedAt:'2026-10-05T18:00:00.000Z',secret})({ summary }), /private content is forbidden/);
+  }
+});
