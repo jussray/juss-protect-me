@@ -1,0 +1,8 @@
+{
+  "name": "juss-protect-me-mcp",
+  "main": "./mcp/worker.mjs",
+  "compatibility_date": "2026-10-15",
+  "vars": { "MCP_ENABLED": "false" },
+  "observability": { "enabled": false },
+  "secrets": { "required": [ "MCP_BEARER_TOKEN" ] }
+}
