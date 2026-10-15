@@ -1,7 +1,7 @@
 name: Model One CI
 on:
   push:
-    branches: [main]
+    branches: [main, 'fix/privacy-safe-evidence-20261015']
   pull_request:
   workflow_dispatch:
 permissions:
