@@ -1,0 +1,4 @@
+Contact: mailto:security@jussco.company
+Expires: 2027-10-15T00:00:00Z
+Preferred-Languages: en
+Canonical: https://protect.jussco.company/.well-known/security.txt
