@@ -2,7 +2,7 @@ import { evaluateThreat, authorizeRecommendedAction, THREAT_KINDS } from '../src
 import { assertPrivateContentAbsent } from '../src/evidence-privacy.mjs';
 const annot = Object.freeze({ readOnlyHint: true, destructiveHint: false, openWorldHint: false });
 function keysOnly(args) {
-  if (!args || !Array.isArray(args.keys) || args.keys.length > 32) throw new Error('invalid input');
+  if (!args || !Array.isArray(args.keys) || args.keys.length > 32 || Object.keys(args).some(key => key !== 'keys')) throw new Error('invalid input');
   let blocked = 0;
   for (const key of args.keys) {
     if (typeof key !== 'string' || !/^[a-zA-Z][a-zA-Z0-9_]{0,63}$/.test(key)) throw new Error('invalid key');
