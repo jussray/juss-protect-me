@@ -1,4 +1,5 @@
 import { createHash, createHmac, timingSafeEqual } from 'node:crypto';
+import { assertPrivateContentAbsent } from './evidence-privacy.mjs';
 
 export const THREAT_KINDS = Object.freeze([
   'malware',
@@ -82,6 +83,7 @@ export function assertThreatEvent(event) {
   }
   if (!String(event.summary ?? '').trim()) throw new Error('event.summary is required');
   walkKeys(event);
+  assertPrivateContentAbsent(event);
 }
 
 export function evaluateThreat(event) {
@@ -135,6 +137,9 @@ export function createEvidenceReceipt({ id, event, identity, evidenceRefs = [], 
   if (!Array.isArray(evidenceRefs) || !evidenceRefs.every((ref) => typeof ref === 'string' && ref.trim())) {
     throw new Error('evidenceRefs must contain non-empty strings');
   }
+
+  assertPrivateContentAbsent(identity);
+  assertPrivateContentAbsent(evidenceRefs);
 
   const receiptKind = secret ? 'hmac-sha256' : 'sha256-unauthenticated';
   const state = evidenceRefs.length === 0 ? 'unknown' : secret ? 'verified' : 'inferred';

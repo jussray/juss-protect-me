@@ -120,3 +120,23 @@ test('unsupported destructive actions cannot be authorized', () => {
   });
   assert.equal(result.authorized, false);
 });
+
+
+test('privacy guard blocks raw conversation, identity, and credentials in security receipts', () => {
+  const base = {
+    id: 'PM1-PRIVACY-001', event, identity,
+    evidenceRefs: ['sensor://browser/verdict/128'],
+    observedAt: '2026-10-05T18:00:00.000Z', secret,
+  };
+  for (const summary of ['user: private message\nassistant: reply', 'member@example.org', '"role":"user"']) {
+    assert.throws(() => createEvidenceReceipt({
+      ...base, event: { ...event, summary },
+    }), /private (?:conversation )?content is forbidden in evidence/);
+  }
+  assert.throws(() => createEvidenceReceipt({
+    ...base, evidenceRefs: ['Authorization: Bearer abcdefghijklmno'],
+  }), /private content is forbidden in evidence/);
+  assert.throws(() => createEvidenceReceipt({
+    ...base, identity: { ...identity, metadata: { cookie: 'sensitive' } },
+  }), /raw sensitive field is forbidden in evidence/);
+});
