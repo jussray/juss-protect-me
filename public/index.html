@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#0a0d1d">
+  <meta name="description" content="Juss Protect Me: privacy-first personal cyber defense built around evidence and human control. Early access information.">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; base-uri 'none'; form-action 'none'; object-src 'none'; upgrade-insecure-requests">
+  <title>Juss Protect Me | Protection starts with proof</title>
+  <style>
+    :root{color-scheme:dark;--ink:#f6f5ff;--muted:#b1b7d1;--line:rgba(181,170,255,.22);--purple:#aa81ff;--blue:#7acafc;--bg:#0a0d1d}
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{margin:0;font:16px/1.6 system-ui,-apple-system,Segoe UI,Arial,sans-serif;background:radial-gradient(ellipse at 78% 7%,#302364 0,transparent 42%),radial-gradient(ellipse at 15% 75%,#102c47 0,transparent 44%),var(--bg);color:var(--ink);min-height:100vh}
+    a{color:inherit}a:focus-visible{outline:3px solid var(--blue);outline-offset:5px;border-radius:3px}
+    .wrap{width:min(1080px,calc(100% - 40px));margin:auto}
+    header{border-bottom:1px solid var(--line);background:rgba(10,13,29,.65)}
+    .top{display:flex;align-items:center;justify-content:space-between;gap:20px;min-height:84px}
+    .brand{display:flex;align-items:center;gap:12px;font-weight:900;letter-spacing:.08em}
+    .crest{display:grid;place-items:center;width:38px;height:38px;border:1px solid var(--purple);border-radius:12px;color:var(--blue);font-size:25px}
+    .top span.tag{font-size:12px;color:#c5b4ff;letter-spacing:.12em;font-weight:800}
+    main{padding:74px 0 60px}
+    .eyebrow{font-size:12px;letter-spacing:.2em;text-transform:uppercase;font-weight:800;color:var(--blue)}
+    h1{font-size:clamp(43px,7vw,84px);line-height:1.08;letter-spacing:-.055em;max-width:890px;margin:18px 0 24px}
+    .gradient{background:linear-gradient(95deg,#d9caff,#86d9ff);-webkit-background-clip:text;background-clip:text;color:transparent}
+    .lead{max-width:690px;font-size:clamp(18px,2.3vw,22px);color:#d4d8ed}
+    .links{display:flex;gap:14px;flex-wrap:wrap;margin:31px 0 39px}
+    .button{padding:12px 19px;border:1px solid var(--line);border-radius:12px;text-decoration:none;font-weight:750}
+    .button.primary{background:linear-gradient(120deg,#a780fe,#6fbffa);color:#0d1230;border:none}
+    .notice{padding:20px 24px;border:1px solid #886db8;background:rgba(90,64,143,.19);border-radius:15px;max-width:845px}
+    .notice strong{display:block;color:#f0d7ff;margin-bottom:4px}
+    h2{margin:75px 0 12px;font-size:clamp(28px,4vw,37px);letter-spacing:-.035em}
+    .intro{color:var(--muted);max-width:720px;margin:0 0 23px}
+    .cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:15px;margin-top:28px}
+    article{border:1px solid var(--line);background:rgba(14,20,44,.79);border-radius:20px;padding:26px}
+    article b{font-size:16px;color:var(--blue)}
+    article h3{font-size:21px;line-height:1.3;margin:14px 0 9px}
+    article p{color:var(--muted);margin:0}
+    .status{display:inline-block;padding:5px 9px;border:1px solid var(--line);border-radius:999px;color:#d5b8ff;font-size:12px;letter-spacing:.07em;text-transform:uppercase}
+    footer{border-top:1px solid var(--line);color:var(--muted);font-size:14px;padding:25px 0 38px}
+    @media(max-width:700px){.top{min-height:75px}.top span.tag{max-width:114px;text-align:right;line-height:1.3}main{padding-top:49px}.cards{grid-template-columns:1fr}h2{margin-top:60px}}
+    @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+  </style>
+</head>
+<body>
+  <header><div class="wrap top">
+    <div class="brand"><span class="crest" aria-hidden="true">⬡</span> JUSS PROTECT ME</div>
+    <span class="tag">MODEL ONE · EARLY ACCESS</span>
+  </div></header>
+  <main class="wrap">
+    <section aria-labelledby="hero-title">
+      <p class="eyebrow">A Juss &amp; Co. protection system</p>
+      <h1 id="hero-title">Protection starts <span class="gradient">with proof.</span></h1>
+      <p class="lead">A privacy-first approach to personal cyber defense. Clear evidence, informed choices, and human authority over consequential security actions.</p>
+      <div class="links">
+        <a class="button primary" href="#principles">Explore the approach</a>
+        <a class="button" href="#readiness">See what is ready</a>
+      </div>
+      <div class="notice" role="status">
+        <strong>Development preview, not active protection</strong>
+        This website does not scan devices, monitor accounts, block threats, or provide incident response. The security kernel has automated tests, but live sensor integrations and independent protection validation are not yet complete.
+      </div>
+    </section>
+    <section id="principles" aria-labelledby="principles-title">
+      <h2 id="principles-title">Built around your control</h2>
+      <p class="intro">Model One is designed to help people make safer security decisions without silently crossing trust boundaries.</p>
+      <div class="cards">
+        <article><b>01 / PRIVACY</b><h3>Less sensitive data.</h3><p>Evidence contracts reject raw passwords, tokens, and other sensitive values. Provider identifiers are designed to remain pseudonymous.</p></article>
+        <article><b>02 / EVIDENCE</b><h3>Proof with identity.</h3><p>Receipts can be bound to model, policy, and sensor identities. Changed identities make previous proof stale.</p></article>
+        <article><b>03 / AUTHORITY</b><h3>You remain in charge.</h3><p>Recommendations do not automatically authorize consequential actions. Security and permission are separate decisions.</p></article>
+      </div>
+    </section>
+    <section id="readiness" aria-labelledby="readiness-title">
+      <h2 id="readiness-title">Where Model One stands</h2>
+      <p class="intro"><span class="status">Kernel implemented</span> &nbsp; <span class="status">Live protection not yet verified</span></p>
+      <p class="intro">The underlying security logic covers threat assessment, evidence receipts, device-risk observations, and authorization boundaries. Consumer-facing integrations, real-world testing, and independent validation are still ahead.</p>
+    </section>
+  </main>
+  <footer><div class="wrap">© Juss &amp; Co. · Juss Protect Me · Model One. Designed for people, not silent automation.</div></footer>
+</body>
+</html>
