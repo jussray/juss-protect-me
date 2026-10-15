@@ -49,3 +49,18 @@ test('payload limits and bad JSON fail safely',()=>{
   assert.equal(handleMcpEnvelope({...headers,body:'not-json'},env,app).status,200);
   assert.equal(packet(handleMcpEnvelope({...headers,body:'not-json'},env,app)).error.code,-32700);
 });
+
+test('screening tools reject extra sensitive parameters without reflecting them', () => {
+  const screeningTool = app.tools.find(t => t.name.endsWith('evidence_keys'));
+  assert.ok(screeningTool);
+  const response = packet(request('tools/call', {
+    name: screeningTool.name,
+    arguments: { keys: ['status'], transcript: 'PRIVATE-NEVER-ECHO' },
+  }));
+  assert.equal(response.result.isError, true);
+  assert.equal(JSON.stringify(response).includes('PRIVATE-NEVER-ECHO'), false);
+});
+test('every advertised tool is non-destructive and read-only', () => {
+  const listing = packet(request('tools/list', {})).result.tools;
+  assert.ok(listing.every(t => t.annotations.readOnlyHint && t.annotations.destructiveHint === false));
+});
