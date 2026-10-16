@@ -42,3 +42,15 @@ Run exact-head Node CI and authenticated HTTP smoke tests; review security and d
 - PROOF GATE: test the **final exact branch head** using GitHub CI, inspect deployment identity, run an authenticated/unauthed HTTP smoke, validate tool schema discovery and client consent/revocation, then seek founder approval for deployment and plugin registration.
 - ROLLBACK: this branch is isolated. Do not change production `main`, Cloudflare runtime, account access, or Supabase Auth settings as part of this receipt.
 - CURRENT RECEIPT STATE: INFERRED continuity text until a receipt checker establishes a valid chain; referenced GitHub CI is independently VERIFIED for its stated commit.
+
+## FCR-issued OAuth implementation (2026-10-15)
+
+- SOURCE-COMMITTED: jussray/juss-protect-me `8e7ff28643d81d21a4992b90d6c74a7a569bf7a7` on `fix/privacy-safe-evidence-20261015`.
+- CI VERIFIED: https://github.com/jussray/juss-protect-me/actions/runs/38834333977. At this SHA the existing Node suite passed; Model Two also passed its existing Playwright/Wrangler Shield smoke gates.
+- AUTH DESIGN: FCR Supabase Auth acts as pinned OAuth 2.1 issuer. Resource server validates JWKS signatures (RS256/ES256), issuer, audience `authenticated`, role, subject, expiry/not-before/issued-at, and a required exact OAuth `client_id` allowlist unique to this product. A user-facing custom `mcp:read` scope is NOT assumed because Supabase's current OAuth server only supports standard OIDC scopes.
+- DISCOVERY: implementation advertises OAuth protected-resource metadata via a read-only MCP Worker endpoint. Static access is not configured for OAuth deployment; prior static mode remains a guarded compatibility/test option.
+- ENVIRONMENT: `MCP_ENABLED=false` remains set. OAuth runtime also rejects absent `MCP_RESOURCE_URL` or `MCP_OAUTH_CLIENT_IDS`. No user JWTs, private messages, provider secrets, or user data were copied to GitHub.
+- PROVIDER STATE UNKNOWN: FCR Supabase OAuth enabled state, asymmetric signing keys, live consent UI, registered individual clients, redirect URI/PKCE verification, FCR RLS and per-client permissions, expiration/revocation after session changes, actual HTTPS endpoint, and ChatGPT custom connector availability are NOT VERIFIED.
+- SECURITY STOP: do not enable dynamic client registration, configure live authorized clients, expose production MCP routes, or modify RLS without separate evidence and a verified founder decision. Existing FCR data must not be exposed to OAuth clients by broad RLS policies.
+- CONTINUITY FINGERPRINT: repository=jussray/juss-protect-me; code_sha=8e7ff28643d81d21a4992b90d6c74a7a569bf7a7; issuer=FCR-Supabase-project; mode=oauth-read-only; deployed=NO; risk=provider-config-unknown. This marker is not authority or a fingerprint of user data.
+- ROLLBACK: feature branch only; discard/revert this commit chain. Production main and Supabase Auth are unchanged.
