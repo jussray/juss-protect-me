@@ -30,3 +30,15 @@ Revert focused MCP commits or discard this branch; do not modify `main` until ex
 
 ## NEXT GATE
 Run exact-head Node CI and authenticated HTTP smoke tests; review security and deployment identity; only then authorize protected rollout and optional plugin registration.
+
+## Follow-up security verification and identity gate (2026-10-15)
+
+- PROOF: Protect Me Model One branch code at a2a11ef22dac5fb2bd667577590c22ff7988fdae passed its entire recorded GitHub Actions workflow: https://github.com/jussray/juss-protect-me/actions/runs/38826033389.
+- CONTINUITY: No branch/main divergence in the previous comparison. Existing Cloudflare Worker is not an active MCP service.
+- IMPLEMENTED: read-only MCP protocol/Worker handlers and privacy rejection tests remain disabled for production by `MCP_ENABLED=false`.
+- RISK: a static, server-wide `MCP_BEARER_TOKEN` is not a user-bound OAuth access token. Do **not** claim ChatGPT plugin readiness, account ownership verification, or chat confidentiality from this implementation.
+- CANDIDATE IDENTITY: Existing Founder Control Room Supabase project is active, and current Supabase documentation describes an OAuth 2.1 server suitable for MCP; its enabled state, consent UI, token issuer, audience, project suitability, and cost impact have not been verified.
+- AUTH GATE: before any public endpoint, require an established OAuth 2.1 provider, PKCE authorization-code flow, user approval, resource metadata, asymmetric signed-token validation (JWKS), issuer/audience/expiry/scope checks, separate MCP product permissions, and real client revocation proof. Never authorize access from user-editable metadata or a receipt.
+- PROOF GATE: test the **final exact branch head** using GitHub CI, inspect deployment identity, run an authenticated/unauthed HTTP smoke, validate tool schema discovery and client consent/revocation, then seek founder approval for deployment and plugin registration.
+- ROLLBACK: this branch is isolated. Do not change production `main`, Cloudflare runtime, account access, or Supabase Auth settings as part of this receipt.
+- CURRENT RECEIPT STATE: INFERRED continuity text until a receipt checker establishes a valid chain; referenced GitHub CI is independently VERIFIED for its stated commit.
