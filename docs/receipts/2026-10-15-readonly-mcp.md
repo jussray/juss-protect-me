@@ -54,3 +54,13 @@ Run exact-head Node CI and authenticated HTTP smoke tests; review security and d
 - SECURITY STOP: do not enable dynamic client registration, configure live authorized clients, expose production MCP routes, or modify RLS without separate evidence and a verified founder decision. Existing FCR data must not be exposed to OAuth clients by broad RLS policies.
 - CONTINUITY FINGERPRINT: repository=jussray/juss-protect-me; code_sha=8e7ff28643d81d21a4992b90d6c74a7a569bf7a7; issuer=FCR-Supabase-project; mode=oauth-read-only; deployed=NO; risk=provider-config-unknown. This marker is not authority or a fingerprint of user data.
 - ROLLBACK: feature branch only; discard/revert this commit chain. Production main and Supabase Auth are unchanged.
+
+## OAuth token freshness and provider activation gate
+
+- VERIFIED source: branch `fix/privacy-safe-evidence-20261015` code candidate `71c0e1e0ba0c6641e47e3c96b93c7f573e76cf2b`; exact-head CI result https://github.com/jussray/juss-protect-me/actions/runs/38839894156.
+- SECURITY HARDENING: read-only MCP OAuth verifier now rejects missing/invalid Supabase session UUID, expired or excessively old JWTs, issue-after-expiry, and token validity exceeding 3600 seconds. Synthetic attack cases are included in CI.
+- PROVIDER GATE: trusted OAuth client registration, exact redirect URI, real user consent, signing-key availability, permission separation, and live access/revocation tests remain UNVERIFIED; no production MCP activation authorized by this receipt.
+- FCR DATA BOUNDARY: source does not grant direct database access or read chat history; no changes to Supabase schemas, grants, RLS, existing Cloudflare services, or OAuth settings.
+- CRITICAL DISTINCTION: OAuth `client_id` identifies the calling application, not the Protect Me resource. Acceptable client IDs must come from actual trusted registration, with independent per-resource allowlists.
+- ROLLBACK: discard/revert these isolated branch commits. `MCP_ENABLED=false` remains in deployment configuration. Do not merge or deploy on the basis of this receipt alone.
+- NEXT PROOF: registered client and consent flow, issuer JWKS readback, authenticated HTTPS smoke, denial/revocation, and separate ChatGPT plugin eligibility and connection evidence.
