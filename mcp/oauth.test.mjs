@@ -18,7 +18,7 @@ let jwks;
 function token(claims={}, header={}) {
   const head=encoder({alg:'RS256',kid:'test-key',typ:'JWT',...header});
   const body=encoder({iss:FCR_ISSUER,aud:'authenticated',role:'authenticated',client_id:'mcp-client-one',
-    sub:subject,iat:now-30,exp:now+600,...claims});
+    sub:subject,session_id:'00000000-0000-4000-8000-000000000002',iat:now-30,exp:now+600,...claims});
   return webcrypto.subtle.sign('RSASSA-PKCS1-v1_5',privateKey,Buffer.from(head+'.'+body))
     .then(sig=>head+'.'+body+'.'+Buffer.from(sig).toString('base64url'));
 }
@@ -50,6 +50,11 @@ test('FCR OAuth credentials are cryptographically verified and separated per pro
     {name:'anonymous',jwt:await token({is_anonymous:true})},
     {name:'wrong subject',jwt:await token({sub:'user-1'})},
     {name:'wrong role',jwt:await token({role:'service_role'})},
+    {name:'missing session',jwt:await token({session_id:null})},
+    {name:'invalid session',jwt:await token({session_id:'user-controlled'})},
+    {name:'overlong token',jwt:await token({exp:now+7200})},
+    {name:'stale issue date',jwt:await token({iat:now-7200})},
+    {name:'expiry precedes issue',jwt:await token({exp:now-40})},
     {name:'wrong algorithm',jwt:await token({}, {alg:'HS256'})},
     {name:'tampered',jwt:good.slice(0,-2)+'AA'},
   ];
