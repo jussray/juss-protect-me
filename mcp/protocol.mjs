@@ -43,7 +43,7 @@ export function handleMcpEnvelope(input, env, app) {
   if (input.path !== '/mcp') return result(404);
   if (!hasOriginPermission(input.origin, env.MCP_ALLOWED_ORIGINS)) return result(403);
   if (input.method !== 'POST') return result(405, '', { Allow: 'POST' });
-  const match = /^Bearer ([^\s]{1,256})$/.exec(input.authorization ?? '');
+  const match = /^Bearer ([^\s]{1,8192})$/.exec(input.authorization ?? '');
   if (!match || !equalConstantTime(match[1], env.MCP_BEARER_TOKEN)) {
     return result(401, '', { 'WWW-Authenticate': 'Bearer' });
   }

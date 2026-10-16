@@ -5,6 +5,7 @@ import worker from './worker.mjs';
 const TOKEN = 'synthetic-test-token-over-thirty-two-characters';
 const env = Object.freeze({
   MCP_ENABLED: 'true',
+  MCP_AUTH_MODE: 'static',
   MCP_BEARER_TOKEN: TOKEN,
   MCP_ALLOWED_ORIGINS: 'https://app.example.test',
 });

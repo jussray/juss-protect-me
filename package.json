@@ -12,13 +12,14 @@
     "./device-evidence": "./src/device-evidence.mjs"
   },
   "scripts": {
-    "test": "node --test test/model-one.test.mjs test/hallway.test.mjs test/authority.test.mjs test/counter-pressure.test.mjs test/device-evidence.test.mjs && node --test mcp/protocol.test.mjs && node --test mcp/worker.test.mjs",
+    "test": "node --test test/model-one.test.mjs test/hallway.test.mjs test/authority.test.mjs test/counter-pressure.test.mjs test/device-evidence.test.mjs && node --test mcp/protocol.test.mjs && node --test mcp/worker.test.mjs && node --test mcp/oauth.test.mjs",
     "test:hallway": "node --test test/hallway.test.mjs",
     "test:authority": "node --test test/authority.test.mjs",
     "test:pressure": "node --test test/counter-pressure.test.mjs",
     "test:device": "node --test test/device-evidence.test.mjs",
     "test:mcp": "node --test mcp/protocol.test.mjs",
-    "test:mcp:worker": "node --test mcp/worker.test.mjs"
+    "test:mcp:worker": "node --test mcp/worker.test.mjs",
+    "test:mcp:oauth": "node --test mcp/oauth.test.mjs"
   },
   "engines": {
     "node": ">=20"
