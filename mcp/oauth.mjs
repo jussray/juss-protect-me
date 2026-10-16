@@ -65,6 +65,10 @@ export async function verifyFcrAccessToken(jwt, env, deps = {}) {
       (claims.user_id != null && claims.user_id !== claims.sub) ||
       !Number.isInteger(claims.exp) || claims.exp <= now ||
       !Number.isInteger(claims.iat) || claims.iat > now + 30 ||
+      // OAuth JWTs must be tied to a real Supabase session and short-lived.
+      typeof claims.session_id !== 'string' || !UUID.test(claims.session_id) ||
+      claims.iat < now - 3630 || claims.exp <= claims.iat ||
+      claims.exp - claims.iat > 3600 ||
       (claims.nbf != null && (!Number.isInteger(claims.nbf) || claims.nbf > now + 30))) {
     throw new Error('Invalid token claims');
   }
