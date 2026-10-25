@@ -34,7 +34,7 @@ test('Welcome navigation is anchored and cross-product discovery remains availab
 });
 
 test('Sauce Guard prevents private links and obvious credentials in public markup', () => {
-  const links = [...html.matchAll(/\\bhref="([^"]+)"/g)].map((match) => match[1]);
+  const links = [...html.matchAll(/href="([^"]+)"/g)].map((match) => match[1]);
   for (const link of links) {
     assert.ok(
       link === '/' || link.startsWith('#')
@@ -43,5 +43,5 @@ test('Sauce Guard prevents private links and obvious credentials in public marku
       'External or internal-only links must not appear in public welcome markup',
     );
   }
-  assert.doesNotMatch(html, /(?:ghp_|github_pat_|sk-proj-|AIzaSy|-----BEGIN [A-Z ]*PRIVATE KEY-----|CF_API_TOKEN|SUPABASE_SERVICE_ROLE_KEY|SHIELD_SECRET|\\/\\.env|\\/internal\\/|\\/admin\\/)/i);
+  assert.doesNotMatch(html, /(?:ghp_|github_pat_|sk-proj-|AIzaSy|-----BEGIN [A-Z ]*PRIVATE KEY-----|CF_API_TOKEN|SUPABASE_SERVICE_ROLE_KEY|SHIELD_SECRET|[/]\.env|[/]internal[/]|[/]admin[/])/i);
 });
