@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Juss Protect Me — Protect Checkup</title>
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="icon" href="/icon.svg" type="image/svg+xml">
+<meta name="theme-color" content="#0a0703">
+<style>
+@font-face{font-family:'PlayfairDisplay';src:url('/fonts/playfair-var.woff2') format('woff2');font-weight:400 800;font-display:swap}
+:root{--bg:#0a0703;--panel:#171106;--line:#5c451a;--ink:#f6efe0;--muted:#c9b890;--gold:#e9c476;--gold2:#c9973f;--ok:#7be0a3}
+*{box-sizing:border-box}
+body{margin:0;background:radial-gradient(800px 420px at 85% -5%,#3a2a10 0,transparent 60%),var(--bg);color:var(--ink);font:16px/1.55 system-ui,-apple-system,"Segoe UI",sans-serif}
+.wrap{max-width:860px;margin:auto;padding:30px 20px 70px}
+.brand{display:flex;gap:12px;align-items:center;color:var(--muted);letter-spacing:.28em;font-size:12px;text-transform:uppercase}
+.brand b{color:var(--gold);font:600 20px 'PlayfairDisplay',Georgia,serif;letter-spacing:.06em}
+h1{font:clamp(30px,5vw,44px)/1.1 'PlayfairDisplay',Georgia,serif;margin:14px 0 8px}
+.sub{color:var(--muted);max-width:62ch}
+.honest{background:#241a08;border:1px solid var(--line);border-radius:14px;padding:14px 18px;margin:20px 0;color:#efdfae}
+.score{display:flex;align-items:center;gap:18px;background:linear-gradient(165deg,var(--panel),#0e0a05);border:1px solid var(--line);border-radius:18px;padding:20px 22px;margin:22px 0}
+.score .n{font:600 44px 'PlayfairDisplay',Georgia,serif;color:var(--gold)}
+.group{background:linear-gradient(165deg,var(--panel),#0e0a05);border:1px solid var(--line);border-radius:18px;padding:20px 22px;margin-top:18px}
+.group h2{font:600 22px 'PlayfairDisplay',Georgia,serif;margin:0 0 4px}
+.group p{color:var(--muted);margin:0 0 8px}
+.item{display:flex;gap:12px;align-items:flex-start;padding:12px 0;border-bottom:1px solid #2c2008}
+.item:last-child{border-bottom:0}
+.item input{width:22px;height:22px;margin-top:2px;accent-color:var(--gold2);flex:none}
+.item .tip{display:none;color:#efdfae;font-size:14px;margin-top:4px}
+.item.open .tip{display:block}
+button{padding:11px 22px;border-radius:999px;border:1px solid var(--line);background:none;color:var(--muted);cursor:pointer;font-size:15px}
+.install{background:linear-gradient(180deg,#f3d98b,var(--gold2));color:#2a1c05;border:0;font-weight:700}
+.foot{color:#8d84a0;font-size:13px;margin-top:26px}
+@keyframes riseIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+.rise{animation:riseIn .7s cubic-bezier(.2,.7,.2,1) both}.rise2{animation:riseIn .7s cubic-bezier(.2,.7,.2,1) .1s both}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="brand rise"><b>JUSS &amp; CO.</b><span>Protect Me · Checkup App</span></div>
+  <h1 class="rise">Your Protect checkup</h1>
+  <p class="sub rise">The member app for Juss Protect Me. Work through each protection once — the app remembers where you left off, on this device only.</p>
+  <div class="honest rise2"><strong>Honest by design:</strong> this is a guided checkup. It does not scan your device, monitor your accounts, or block threats. It walks you through the protections that actually work — and your answers never leave this device.</div>
+  <div class="score rise2"><div class="n" id="score">0%</div><div><strong id="score-label">Start your checkup</strong><br><span class="sub" id="score-note">Tick each protection you already have in place. Anything unticked shows you exactly how to set it up.</span></div></div>
+  <div id="groups"></div>
+  <p style="margin-top:24px"><button class="install" id="install" hidden>Install this app</button> <button id="reset">Start over</button></p>
+  <p class="foot">Juss Protect Me · Answers are stored only in this browser (local storage). Clearing browser data clears the checkup. Membership enrollment opens with launch — this preview is the same checkup members install.</p>
+</div>
+<script src="/app.js"></script>
+</body>
+</html>

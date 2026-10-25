@@ -1,7 +1,10 @@
 {
   "name": "juss-protect-me",
+  "main": "./worker.mjs",
   "compatibility_date": "2026-10-15",
   "assets": {
-    "directory": "./public"
+    "directory": "./public",
+    "binding": "ASSETS",
+    "run_worker_first": true
   }
 }
