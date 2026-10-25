@@ -25,7 +25,7 @@ test('not advertised when key or safe model is missing', async () => {
   assert.equal(createMuseProvider({ MODEL_API_KEY: KEY }, okFetch()), undefined);
   assert.equal(createMuseProvider({ MODEL_API_KEY: KEY, PROTECT_ME_MUSE_MODEL: 'muse-spark-9.9' }, okFetch()), undefined);
   assert.equal(museProviderState({}).state, 'ABSENT');
-  assert.equal(museProviderState(ENV).state, 'INTEGRATED');
+  assert.equal(museProviderState(ENV).state, 'PRESENT');
   const fetchImpl = okFetch();
   await assert.rejects(() => invokeMuse({}, { prompt: 'hi' }, fetchImpl), /muse_not_configured/);
   assert.equal(fetchImpl.calls.length, 0);

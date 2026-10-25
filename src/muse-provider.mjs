@@ -36,7 +36,7 @@ export function museProviderState(env = {}) {
   const configured = Boolean(String(env.MODEL_API_KEY ?? '').trim()) && safeModel(env[MUSE_MODEL_ENV]) !== null;
   return Object.freeze({
     provider: 'muse',
-    state: configured ? 'INTEGRATED' : 'ABSENT',
+    state: configured ? 'PRESENT' : 'ABSENT',
     model: safeModel(env[MUSE_MODEL_ENV]),
     authority: 'none',
   });
@@ -144,7 +144,7 @@ export async function invokeMuse(env = {}, input = {}, fetchImpl = fetch) {
 }
 
 export function createMuseProvider(env = {}, fetchImpl = fetch) {
-  if (museProviderState(env).state !== 'INTEGRATED') return undefined;
+  if (museProviderState(env).state !== 'PRESENT') return undefined;
   return Object.freeze({
     provider: 'muse',
     authority: 'none',
