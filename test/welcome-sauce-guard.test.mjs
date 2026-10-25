@@ -1,3 +1,6 @@
+// Presentation-only Sauce Guard check. Publication authority stays with:
+// jussray/founder-control-room/.agents/skills/sauce-guard/SKILL.md
+// This test cannot approve publication or grant protection authority.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
@@ -28,4 +31,17 @@ test('Welcome navigation is anchored and cross-product discovery remains availab
   assert.match(html, /id="(?:promise|vision)"/);
   assert.match(html, /href="#availability"/);
   assert.ok(html.includes(OTHER_SITE));
+});
+
+test('Sauce Guard prevents private links and obvious credentials in public markup', () => {
+  const links = [...html.matchAll(/\\bhref="([^"]+)"/g)].map((match) => match[1]);
+  for (const link of links) {
+    assert.ok(
+      link === '/' || link.startsWith('#')
+        || link === 'https://protect.jussco.company'
+        || link === 'https://protect2.jussco.company',
+      'External or internal-only links must not appear in public welcome markup',
+    );
+  }
+  assert.doesNotMatch(html, /(?:ghp_|github_pat_|sk-proj-|AIzaSy|-----BEGIN [A-Z ]*PRIVATE KEY-----|CF_API_TOKEN|SUPABASE_SERVICE_ROLE_KEY|SHIELD_SECRET|\\/\\.env|\\/internal\\/|\\/admin\\/)/i);
 });
