@@ -1,81 +1,66 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="theme-color" content="#0a0d1d">
-  <meta name="description" content="Juss Protect Me: privacy-first personal cyber defense built around evidence and human control. Early access information.">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; base-uri 'none'; form-action 'none'; object-src 'none'; upgrade-insecure-requests">
-  <title>Juss Protect Me | Protection starts with proof</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#070609" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src 'self'; style-src 'unsafe-inline'; base-uri 'none'; form-action 'none'; object-src 'none'; upgrade-insecure-requests" />
+  <meta name="description" content="Juss & Co. protection for people, devices, everyday life, and smarter AI. Explore Juss Protect Me and Juss Protect Me 2 early access." />
+  <title>Juss & Co. | Protection That Empowers</title>
   <style>
-    :root{color-scheme:dark;--ink:#f6f5ff;--muted:#b1b7d1;--line:rgba(181,170,255,.22);--purple:#aa81ff;--blue:#7acafc;--bg:#0a0d1d}
-    *{box-sizing:border-box}
-    html{scroll-behavior:smooth}
-    body{margin:0;font:16px/1.6 system-ui,-apple-system,Segoe UI,Arial,sans-serif;background:radial-gradient(ellipse at 78% 7%,#302364 0,transparent 42%),radial-gradient(ellipse at 15% 75%,#102c47 0,transparent 44%),var(--bg);color:var(--ink);min-height:100vh}
-    a{color:inherit}a:focus-visible{outline:3px solid var(--blue);outline-offset:5px;border-radius:3px}
-    .wrap{width:min(1080px,calc(100% - 40px));margin:auto}
-    header{border-bottom:1px solid var(--line);background:rgba(10,13,29,.65)}
-    .top{display:flex;align-items:center;justify-content:space-between;gap:20px;min-height:84px}
-    .brand{display:flex;align-items:center;gap:12px;font-weight:900;letter-spacing:.08em}
-    .crest{display:grid;place-items:center;width:38px;height:38px;border:1px solid var(--purple);border-radius:12px;color:var(--blue);font-size:25px}
-    .top span.tag{font-size:12px;color:#c5b4ff;letter-spacing:.12em;font-weight:800}
-    main{padding:74px 0 60px}
-    .eyebrow{font-size:12px;letter-spacing:.2em;text-transform:uppercase;font-weight:800;color:var(--blue)}
-    h1{font-size:clamp(43px,7vw,84px);line-height:1.08;letter-spacing:-.055em;max-width:890px;margin:18px 0 24px}
-    .gradient{background:linear-gradient(95deg,#d9caff,#86d9ff);-webkit-background-clip:text;background-clip:text;color:transparent}
-    .lead{max-width:690px;font-size:clamp(18px,2.3vw,22px);color:#d4d8ed}
-    .links{display:flex;gap:14px;flex-wrap:wrap;margin:31px 0 39px}
-    .button{padding:12px 19px;border:1px solid var(--line);border-radius:12px;text-decoration:none;font-weight:750}
-    .button.primary{background:linear-gradient(120deg,#a780fe,#6fbffa);color:#0d1230;border:none}
-    .notice{padding:20px 24px;border:1px solid #886db8;background:rgba(90,64,143,.19);border-radius:15px;max-width:845px}
-    .notice strong{display:block;color:#f0d7ff;margin-bottom:4px}
-    h2{margin:75px 0 12px;font-size:clamp(28px,4vw,37px);letter-spacing:-.035em}
-    .intro{color:var(--muted);max-width:720px;margin:0 0 23px}
-    .cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:15px;margin-top:28px}
-    article{border:1px solid var(--line);background:rgba(14,20,44,.79);border-radius:20px;padding:26px}
-    article b{font-size:16px;color:var(--blue)}
-    article h3{font-size:21px;line-height:1.3;margin:14px 0 9px}
-    article p{color:var(--muted);margin:0}
-    .status{display:inline-block;padding:5px 9px;border:1px solid var(--line);border-radius:999px;color:#d5b8ff;font-size:12px;letter-spacing:.07em;text-transform:uppercase}
-    footer{border-top:1px solid var(--line);color:var(--muted);font-size:14px;padding:25px 0 38px}
-    @media(max-width:700px){.top{min-height:75px}.top span.tag{max-width:114px;text-align:right;line-height:1.3}main{padding-top:49px}.cards{grid-template-columns:1fr}h2{margin-top:60px}}
+    :root{color-scheme:dark;--gold:#f1bd59;--cream:#f8e5bd;--violet:#c653fa;--ink:#080609;--muted:#d2c9d8}
+    *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:#050408;color:white;font:16px/1.55 system-ui,-apple-system,'Segoe UI',Arial,sans-serif}a{color:inherit}a:focus-visible,button:focus-visible{outline:3px solid #f7d280;outline-offset:4px}
+    .desktop-view{display:block;position:relative;width:100%;max-width:1920px;margin:0 auto;line-height:0}
+    .approved-art{width:100%;height:auto;display:block;aspect-ratio:3/2;object-fit:contain}
+    .hotspot{position:absolute;display:block;line-height:1.2;border-radius:8px;color:transparent;text-decoration:none;z-index:2;overflow:hidden;text-indent:-100vw}
+    .hotspot:focus-visible{outline:3px solid #fff;outline-offset:2px;background:#fff2;text-indent:0;color:white;text-shadow:0 1px 5px #000;font-size:clamp(10px,1.1vw,16px);display:grid;place-items:center}
+    .nav-home{left:27.2%;top:0%;width:6.2%;height:6%}.nav-products{left:33.8%;top:0%;width:6.5%;height:6%}.nav-purpose{left:41%;top:0%;width:8.5%;height:6%}.nav-support{left:49.7%;top:0%;width:6.7%;height:6%}.nav-access{left:57.1%;top:0%;width:13%;height:6%}
+    .cta-one{left:3%;top:42.4%;width:13.9%;height:5.7%}.how-one{left:18%;top:42.4%;width:12.2%;height:5.7%}.cta-two{left:52.8%;top:42.4%;width:14.5%;height:5.7%}.how-two{left:68.5%;top:42.4%;width:13.3%;height:5.7%}
+    .footer-access{left:86%;top:91%;width:12.5%;height:5.3%}
+    .mobile-view{display:none}.below{background:linear-gradient(135deg,#10090a 0%,#05040b 45%,#120521 100%);border-top:1px solid #b8894b66;padding:48px max(6vw,20px);text-align:center}.below h2{font-family:Georgia,'Times New Roman',serif;color:var(--cream);font-size:clamp(30px,4.5vw,46px);font-weight:400;margin:0 0 12px}.below p{max-width:720px;color:var(--muted);margin:0 auto 22px}.links{display:flex;justify-content:center;flex-wrap:wrap;gap:14px}.button{display:inline-flex;align-items:center;justify-content:center;text-decoration:none;border:1px solid #d2ab69;border-radius:999px;padding:13px 22px;color:#1b0c06;background:linear-gradient(110deg,#f2c765,#df9a31);font-size:15px;font-weight:700;min-height:48px}.button.violet{color:#fff;border-color:#b664f9;background:linear-gradient(110deg,#773bf7,#c044df)}.button.ghost{color:var(--cream);background:transparent}.disclaimer{font-size:13px;color:#a8a0aa;margin-top:22px!important}
+    .value-row{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;color:#d8b775;letter-spacing:.11em;text-transform:uppercase;font-size:11px;margin-top:22px}
+    @media(max-width:740px){
+      .desktop-view{display:none}.mobile-view{display:block}
+      .mobile-top{display:flex;justify-content:space-between;align-items:center;padding:17px 18px;background:#050407;border-bottom:1px solid #a873334d;gap:8px}
+      .mobile-top strong{font:30px/1 Georgia,'Times New Roman',serif;color:var(--cream);font-weight:400;white-space:nowrap}.mobile-top span{font-size:8px;letter-spacing:.16em;text-transform:uppercase;color:#e0d2d5;text-align:right}
+      .mobile-panel{margin:0;background:#090508;border-bottom:1px solid #b4884855}.mobile-panel.two{background:#070410}
+      .image-half{position:relative;overflow:hidden;width:100%;aspect-ratio:768 / 690;background:#000}.image-half img{position:absolute;display:block;width:200%;max-width:none;height:auto;top:-9.5%}.image-half.one img{left:0}.image-half.two img{right:0}
+      .mobile-content{padding:17px 20px 31px;margin-top:-5px}.mobile-content .eyebrow{font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:#ebbf6b;margin:0 0 8px}.mobile-content h1,.mobile-content h2{font:clamp(31px,9vw,45px)/1.1 Georgia,'Times New Roman',serif;margin:0 0 12px}.mobile-content .two-title{color:#e3b3fa}.mobile-content p{color:#d6cfd7;margin:0 0 20px}.mobile-content .buttons{display:flex;gap:10px;flex-wrap:wrap}
+      .feature-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin:22px 0 0}.feature{border:1px solid #aa834452;border-radius:12px;padding:13px 11px;background:#1b1009}.two .feature{background:#140b21;border-color:#a360e566}.feature strong{font-size:13px;display:block;color:#f1d29c}.two .feature strong{color:#e9c5ff}.feature span{display:block;font-size:11px;color:#d1c8cf;margin-top:5px}
+      .below{padding:38px 18px 45px}.below h2{font-size:31px}.below .links{flex-direction:column;align-items:stretch}.below .button{width:100%}
+    }
     @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
   </style>
 </head>
 <body>
-  <header><div class="wrap top">
-    <div class="brand"><span class="crest" aria-hidden="true">⬡</span> JUSS PROTECT ME</div>
-    <span class="tag">MODEL ONE · EARLY ACCESS</span>
-  </div></header>
-  <main class="wrap">
-    <section aria-labelledby="hero-title">
-      <p class="eyebrow">A Juss &amp; Co. protection system</p>
-      <h1 id="hero-title">Protection starts <span class="gradient">with proof.</span></h1>
-      <p class="lead">A privacy-first approach to personal cyber defense. Clear evidence, informed choices, and human authority over consequential security actions.</p>
-      <div class="links">
-        <a class="button primary" href="#principles">Explore the approach</a>
-        <a class="button" href="#readiness">See what is ready</a>
-      </div>
-      <div class="notice" role="status">
-        <strong>Development preview, not active protection</strong>
-        This website does not scan devices, monitor accounts, block threats, or provide incident response. The security kernel has automated tests, but live sensor integrations and independent protection validation are not yet complete.
-      </div>
+  <!-- Faithful view of the founder-approved 2026-10-25 artwork, including exact portraits, wording, and layout. -->
+  <main id="home">
+    <section class="desktop-view" aria-label="Juss & Co. model one and model two protection overview">
+      <img class="approved-art" src="./visual.webp" width="1536" height="1024" decoding="async" fetchpriority="high" alt="Juss & Co. presents Juss Protect Me for people, devices and everyday safety in warm gold, alongside Juss Protect Me 2 for AI agents, tools and trusted boundaries in violet. A people-first black-and-gold protection collection with early-access invitations." />
+      <a class="hotspot nav-home" href="#home">Home</a><a class="hotspot nav-products" href="#products">Products</a><a class="hotspot nav-purpose" href="#purpose">Our Purpose</a><a class="hotspot nav-support" href="#support">Support</a><a class="hotspot nav-access" href="#early-access">Get Early Access</a>
+      <a class="hotspot cta-one" href="#early-access">Explore Model One Early Access</a><a class="hotspot how-one" href="#how-it-works">How Model One Works</a>
+      <a class="hotspot cta-two" href="#early-access">Explore Model Two Early Access</a><a class="hotspot how-two" href="#how-it-works">How Model Two Works</a>
+      <a class="hotspot footer-access" href="#early-access">Explore Early Access</a>
     </section>
-    <section id="principles" aria-labelledby="principles-title">
-      <h2 id="principles-title">Built around your control</h2>
-      <p class="intro">Model One is designed to help people make safer security decisions without silently crossing trust boundaries.</p>
-      <div class="cards">
-        <article><b>01 / PRIVACY</b><h3>Less sensitive data.</h3><p>Evidence contracts reject raw passwords, tokens, and other sensitive values. Provider identifiers are designed to remain pseudonymous.</p></article>
-        <article><b>02 / EVIDENCE</b><h3>Proof with identity.</h3><p>Receipts can be bound to model, policy, and sensor identities. Changed identities make previous proof stale.</p></article>
-        <article><b>03 / AUTHORITY</b><h3>You remain in charge.</h3><p>Recommendations do not automatically authorize consequential actions. Security and permission are separate decisions.</p></article>
-      </div>
-    </section>
-    <section id="readiness" aria-labelledby="readiness-title">
-      <h2 id="readiness-title">Where Model One stands</h2>
-      <p class="intro"><span class="status">Kernel implemented</span> &nbsp; <span class="status">Live protection not yet verified</span></p>
-      <p class="intro">The underlying security logic covers threat assessment, evidence receipts, device-risk observations, and authorization boundaries. Consumer-facing integrations, real-world testing, and independent validation are still ahead.</p>
-    </section>
+    <div class="mobile-view" id="products">
+      <header class="mobile-top"><strong>JUSS &amp; CO.</strong><span>Real People<br>Real Intelligence<br>A Safer Tomorrow</span></header>
+      <article class="mobile-panel one" aria-labelledby="one-heading">
+        <div class="image-half one"><img src="./visual.webp" alt="The founder-approved Juss Protect Me gold portrait and illustrated product features" loading="eager" /></div>
+        <div class="mobile-content"><p class="eyebrow">Juss Protect Me · Model One</p><h1 id="one-heading">Real Protection for Real People</h1><p>For your devices, your identity, and everyday peace of mind. Designed to put people first.</p><div class="buttons"><a class="button" href="#early-access">Explore Early Access →</a><a class="button ghost" href="https://protect.jussco.company">Model One site</a></div>
+          <div class="feature-list"><div class="feature"><strong>Device Safety</strong><span>Safer everyday technology</span></div><div class="feature"><strong>Identity Protection</strong><span>Personal information first</span></div><div class="feature"><strong>Everyday Safety</strong><span>At home and on the go</span></div><div class="feature"><strong>Privacy First</strong><span>Your information, your choices</span></div></div>
+        </div>
+      </article>
+      <article class="mobile-panel two" aria-labelledby="two-heading">
+        <div class="image-half two"><img src="./visual.webp" alt="The founder-approved Juss Protect Me 2 violet portrait and illustrated product features" loading="lazy" /></div>
+        <div class="mobile-content"><p class="eyebrow">Juss Protect Me 2 · Model Two</p><h2 class="two-title" id="two-heading">AI Agent Security for What Comes Next</h2><p>Clearer boundaries, safer tools, and more understandable choices for AI-assisted work.</p><div class="buttons"><a class="button violet" href="#early-access">Explore Early Access →</a><a class="button ghost" href="https://protect2.jussco.company">Model Two site</a></div>
+          <div class="feature-list"><div class="feature"><strong>AI Agent Control</strong><span>Boundaries you define</span></div><div class="feature"><strong>Trusted Tools</strong><span>Purposeful permissions</span></div><div class="feature"><strong>Content Safety</strong><span>Designed for more trust</span></div><div class="feature"><strong>Action Insights</strong><span>Clearer understanding</span></div></div>
+        </div>
+      </article>
+    </div>
+    <section class="below" id="purpose"><h2>One Family. A Safer World.</h2><p>People first. Privacy focused. Purpose driven. Responsible AI. Protection that empowers.</p><div class="value-row"><span>People First</span>✧<span>Privacy Focused</span>✧<span>Responsible AI</span></div></section>
+    <section class="below" id="how-it-works"><h2>Protection that serves you.</h2><p>Model One focuses on people and everyday digital safety. Model Two focuses on more deliberate AI and software boundaries. Each product is being developed and evaluated separately.</p><div class="links"><a class="button" href="https://protect.jussco.company">Explore Model One</a><a class="button violet" href="https://protect2.jussco.company">Explore Model Two</a></div></section>
+    <section class="below" id="early-access"><h2>Get Early Access</h2><p>Our early-access experience is being prepared. Enrollment is not yet available through this page, and visiting this website does not activate device or AI-agent protection.</p><div class="links"><a class="button" href="https://protect.jussco.company">Model One: People &amp; Devices</a><a class="button violet" href="https://protect2.jussco.company">Model Two: AI &amp; Tools</a></div><p class="disclaimer">These are product previews, not a guarantee of active protection. We never claim you are enrolled unless a registration is actually confirmed.</p></section>
+    <footer class="below" id="support"><h2>JUSS &amp; CO.</h2><p>Real people. Real intelligence. A safer tomorrow.</p><p class="disclaimer">© Juss &amp; Co. · Protection That Empowers</p></footer>
   </main>
-  <footer><div class="wrap">© Juss &amp; Co. · Juss Protect Me · Model One. Designed for people, not silent automation.</div></footer>
 </body>
 </html>
