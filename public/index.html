@@ -1,81 +1,42 @@
-<!doctype html>
-<html lang="en">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="theme-color" content="#0a0d1d">
-  <meta name="description" content="Juss Protect Me: privacy-first personal cyber defense built around evidence and human control. Early access information.">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; base-uri 'none'; form-action 'none'; object-src 'none'; upgrade-insecure-requests">
-  <title>Juss Protect Me | Protection starts with proof</title>
-  <style>
-    :root{color-scheme:dark;--ink:#f6f5ff;--muted:#b1b7d1;--line:rgba(181,170,255,.22);--purple:#aa81ff;--blue:#7acafc;--bg:#0a0d1d}
-    *{box-sizing:border-box}
-    html{scroll-behavior:smooth}
-    body{margin:0;font:16px/1.6 system-ui,-apple-system,Segoe UI,Arial,sans-serif;background:radial-gradient(ellipse at 78% 7%,#302364 0,transparent 42%),radial-gradient(ellipse at 15% 75%,#102c47 0,transparent 44%),var(--bg);color:var(--ink);min-height:100vh}
-    a{color:inherit}a:focus-visible{outline:3px solid var(--blue);outline-offset:5px;border-radius:3px}
-    .wrap{width:min(1080px,calc(100% - 40px));margin:auto}
-    header{border-bottom:1px solid var(--line);background:rgba(10,13,29,.65)}
-    .top{display:flex;align-items:center;justify-content:space-between;gap:20px;min-height:84px}
-    .brand{display:flex;align-items:center;gap:12px;font-weight:900;letter-spacing:.08em}
-    .crest{display:grid;place-items:center;width:38px;height:38px;border:1px solid var(--purple);border-radius:12px;color:var(--blue);font-size:25px}
-    .top span.tag{font-size:12px;color:#c5b4ff;letter-spacing:.12em;font-weight:800}
-    main{padding:74px 0 60px}
-    .eyebrow{font-size:12px;letter-spacing:.2em;text-transform:uppercase;font-weight:800;color:var(--blue)}
-    h1{font-size:clamp(43px,7vw,84px);line-height:1.08;letter-spacing:-.055em;max-width:890px;margin:18px 0 24px}
-    .gradient{background:linear-gradient(95deg,#d9caff,#86d9ff);-webkit-background-clip:text;background-clip:text;color:transparent}
-    .lead{max-width:690px;font-size:clamp(18px,2.3vw,22px);color:#d4d8ed}
-    .links{display:flex;gap:14px;flex-wrap:wrap;margin:31px 0 39px}
-    .button{padding:12px 19px;border:1px solid var(--line);border-radius:12px;text-decoration:none;font-weight:750}
-    .button.primary{background:linear-gradient(120deg,#a780fe,#6fbffa);color:#0d1230;border:none}
-    .notice{padding:20px 24px;border:1px solid #886db8;background:rgba(90,64,143,.19);border-radius:15px;max-width:845px}
-    .notice strong{display:block;color:#f0d7ff;margin-bottom:4px}
-    h2{margin:75px 0 12px;font-size:clamp(28px,4vw,37px);letter-spacing:-.035em}
-    .intro{color:var(--muted);max-width:720px;margin:0 0 23px}
-    .cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:15px;margin-top:28px}
-    article{border:1px solid var(--line);background:rgba(14,20,44,.79);border-radius:20px;padding:26px}
-    article b{font-size:16px;color:var(--blue)}
-    article h3{font-size:21px;line-height:1.3;margin:14px 0 9px}
-    article p{color:var(--muted);margin:0}
-    .status{display:inline-block;padding:5px 9px;border:1px solid var(--line);border-radius:999px;color:#d5b8ff;font-size:12px;letter-spacing:.07em;text-transform:uppercase}
-    footer{border-top:1px solid var(--line);color:var(--muted);font-size:14px;padding:25px 0 38px}
-    @media(max-width:700px){.top{min-height:75px}.top span.tag{max-width:114px;text-align:right;line-height:1.3}main{padding-top:49px}.cards{grid-template-columns:1fr}h2{margin-top:60px}}
-    @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
-  </style>
-</head>
-<body>
-  <header><div class="wrap top">
-    <div class="brand"><span class="crest" aria-hidden="true">⬡</span> JUSS PROTECT ME</div>
-    <span class="tag">MODEL ONE · EARLY ACCESS</span>
-  </div></header>
-  <main class="wrap">
-    <section aria-labelledby="hero-title">
-      <p class="eyebrow">A Juss &amp; Co. protection system</p>
-      <h1 id="hero-title">Protection starts <span class="gradient">with proof.</span></h1>
-      <p class="lead">A privacy-first approach to personal cyber defense. Clear evidence, informed choices, and human authority over consequential security actions.</p>
-      <div class="links">
-        <a class="button primary" href="#principles">Explore the approach</a>
-        <a class="button" href="#readiness">See what is ready</a>
-      </div>
-      <div class="notice" role="status">
-        <strong>Development preview, not active protection</strong>
-        This website does not scan devices, monitor accounts, block threats, or provide incident response. The security kernel has automated tests, but live sensor integrations and independent protection validation are not yet complete.
-      </div>
-    </section>
-    <section id="principles" aria-labelledby="principles-title">
-      <h2 id="principles-title">Built around your control</h2>
-      <p class="intro">Model One is designed to help people make safer security decisions without silently crossing trust boundaries.</p>
-      <div class="cards">
-        <article><b>01 / PRIVACY</b><h3>Less sensitive data.</h3><p>Evidence contracts reject raw passwords, tokens, and other sensitive values. Provider identifiers are designed to remain pseudonymous.</p></article>
-        <article><b>02 / EVIDENCE</b><h3>Proof with identity.</h3><p>Receipts can be bound to model, policy, and sensor identities. Changed identities make previous proof stale.</p></article>
-        <article><b>03 / AUTHORITY</b><h3>You remain in charge.</h3><p>Recommendations do not automatically authorize consequential actions. Security and permission are separate decisions.</p></article>
-      </div>
-    </section>
-    <section id="readiness" aria-labelledby="readiness-title">
-      <h2 id="readiness-title">Where Model One stands</h2>
-      <p class="intro"><span class="status">Kernel implemented</span> &nbsp; <span class="status">Live protection not yet verified</span></p>
-      <p class="intro">The underlying security logic covers threat assessment, evidence receipts, device-risk observations, and authorization boundaries. Consumer-facing integrations, real-world testing, and independent validation are still ahead.</p>
-    </section>
-  </main>
-  <footer><div class="wrap">© Juss &amp; Co. · Juss Protect Me · Model One. Designed for people, not silent automation.</div></footer>
-</body>
-</html>
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#0c0b10"><meta name="description" content="Juss Protect Me. A more personal approach to safety, privacy, and peace of mind."><meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; base-uri 'none'; form-action 'none'; object-src 'none'; upgrade-insecure-requests"><title>Juss Protect Me | Protection that puts you first</title><style>
+:root{color-scheme:dark;--gold:#ebcb97;--cream:#f3e9de;--muted:#c0b7b6;--line:rgba(235,197,145,.22);--bg:#0c0b10;--halo:rgba(176,90,56,.22);--deep:#241620}
+body.blue{--bg:#080b15;--halo:rgba(67,96,163,.24);--deep:#101a32}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;font:16px/1.65 system-ui,-apple-system,'Segoe UI',sans-serif;background:var(--bg);color:var(--cream);-webkit-font-smoothing:antialiased}a{color:inherit}a:focus-visible{outline:2px solid var(--gold);outline-offset:5px}
+.page{overflow:hidden;min-height:100vh;background:radial-gradient(ellipse at 83% 16%,var(--halo),transparent 37%),radial-gradient(ellipse at 9% 77%,rgba(85,54,91,.1),transparent 33%),var(--bg)}
+.shell{width:min(1280px,calc(100% - 76px));margin:auto}header{border-bottom:1px solid rgba(255,255,255,.085)}.nav{min-height:92px;display:flex;justify-content:space-between;align-items:center;gap:25px}
+.brand{text-decoration:none;display:flex;align-items:center;gap:13px}.crest{width:41px;height:45px;stroke:var(--gold);fill:none;stroke-width:1.4}.brand-type{display:flex;flex-direction:column;line-height:1.1}.brand-type strong{font:400 23px/1.1 Georgia,'Times New Roman',serif;letter-spacing:.06em}.brand-type small{font:500 9px/1.4 system-ui,sans-serif;letter-spacing:.3em;color:var(--gold);margin-top:7px}
+.nav-links{display:flex;align-items:center;gap:26px}.nav-links a{font-size:12px;text-decoration:none;letter-spacing:.04em}.nav-links .outline{border:1px solid var(--line);padding:10px 16px;color:var(--gold)}
+.hero{display:grid;grid-template-columns:1.03fr .97fr;align-items:center;min-height:680px;gap:6px;position:relative}.hero-copy{padding:78px 0;z-index:1}.eyebrow{display:flex;gap:12px;align-items:center;font-size:10px;font-weight:650;text-transform:uppercase;letter-spacing:.26em;color:var(--gold)}.eyebrow:before{content:'';width:32px;height:1px;background:var(--gold)}
+h1{font:400 clamp(54px,6.6vw,96px)/1.065 Georgia,'Times New Roman',serif;letter-spacing:-.055em;margin:31px 0 27px;max-width:750px}h1 em{color:var(--gold);font-weight:400}
+.lead{max-width:470px;color:#bcb5b7;font-size:clamp(16px,1.55vw,19px);line-height:1.76;margin:0 0 30px}.actions{display:flex;gap:15px;flex-wrap:wrap}.btn{display:inline-flex;align-items:center;justify-content:center;gap:25px;padding:14px 21px;min-height:49px;text-decoration:none;font-weight:700;font-size:12px;letter-spacing:.05em;background:linear-gradient(110deg,#f4d9a9,#caa273);color:#191418}.btn span{font-size:20px;font-weight:400;line-height:1}.btn.secondary{background:rgba(12,12,18,.42);color:var(--gold);border:1px solid var(--line);gap:16px}
+.visual{height:615px;position:relative;align-self:end;overflow:hidden;margin-right:-36px}.visual:before{content:'';position:absolute;inset:31px 6% 0 13%;border-radius:51% 51% 0 0;border:1px solid rgba(234,186,113,.34);border-bottom:0;background:radial-gradient(ellipse at 58% 40%,var(--halo),transparent 52%),linear-gradient(180deg,transparent 55%,rgba(10,10,15,.6));box-shadow:inset 0 0 35px rgba(219,160,100,.06)}
+body.blue .visual:before{border-radius:50%;inset:37px 6% 18px 12%;border:1px solid rgba(180,188,231,.2);transform:rotate(-10deg)}
+.visual:after{content:'';position:absolute;inset:62px 10% 15px 17%;border:1px solid rgba(235,191,132,.1);border-bottom:0;border-radius:51% 51% 0 0;pointer-events:none}
+body.blue .visual:after{inset:78px 12% 32px 20%;border:1px solid rgba(144,157,216,.17);border-radius:50%;transform:rotate(13deg)}
+.figure{position:absolute;bottom:0;width:100%;height:94%;z-index:1}.figure svg{display:block;width:100%;height:100%;filter:drop-shadow(0 25px 38px #07070c)}.fine{position:absolute;bottom:43px;right:35px;z-index:2;text-align:right;font:italic 22px Georgia,serif;color:#f0d0a0;text-shadow:0 2px 13px #151119}.fine small{display:block;color:#c2b4aa;letter-spacing:.21em;text-transform:uppercase;font:500 9px/2 system-ui,sans-serif}
+.scope{border-top:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;gap:40px;padding:32px 0}.scope p{margin:0;max-width:585px;color:#aaa3a8;font-size:13px}.scope b{color:#dfc19c}.scope span{color:#948a91;white-space:nowrap;text-transform:uppercase;letter-spacing:.15em;font-size:10px}
+.promise{padding:105px 0 118px}.kicker{font-size:10px;letter-spacing:.25em;color:var(--gold);text-transform:uppercase}.promise h2{max-width:800px;margin:18px 0 41px;font:400 clamp(38px,4.2vw,61px)/1.15 Georgia,serif;letter-spacing:-.04em}.promise h2 em{color:var(--gold)}.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:17px}.card{min-height:226px;border:1px solid rgba(230,197,152,.17);background:linear-gradient(125deg,var(--deep),rgba(13,12,18,.4));padding:34px}.card .number{color:var(--gold);font-size:10px;letter-spacing:.15em}.card h3{font:400 30px Georgia,serif;margin:30px 0 9px}.card p{font-size:14px;color:#aca5aa;margin:0}
+footer{border-top:1px solid var(--line);padding:29px 0 44px;display:flex;justify-content:space-between;gap:18px;color:#a39aa1;font-size:12px}footer a{text-decoration:none;color:var(--gold)}
+@media(max-width:960px){.hero{grid-template-columns:1fr;min-height:auto}.hero-copy{padding:67px 0 15px}.visual{width:min(610px,100%);height:510px;align-self:auto;margin:0 auto}.cards{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:610px){.shell{width:calc(100% - 38px)}.nav{min-height:72px}.crest{width:29px;height:34px}.brand-type strong{font-size:16px}.brand-type small{font-size:7px}.nav-links a:not(.outline){display:none}.nav-links .outline{font-size:10px;padding:8px 10px}.hero-copy{padding:59px 0 10px}.eyebrow{font-size:9px;letter-spacing:.16em}.eyebrow:before{width:16px}h1{font-size:clamp(50px,12.7vw,77px);margin:27px 0 24px}.lead{font-size:16px}.btn{font-size:11px}.visual{height:390px}.fine{bottom:17px;right:13px;font-size:17px}.fine small{font-size:8px}.scope{align-items:flex-start;flex-direction:column;gap:13px;padding:27px 0}.scope span{white-space:normal}.promise{padding:73px 0 80px}.cards{grid-template-columns:1fr}.card{min-height:164px;padding:28px}.card h3{margin:18px 0 8px}footer{flex-direction:column;align-items:flex-start;gap:11px}}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+</style></head><body><div class="page"><header><div class="shell nav"><a class="brand" href="/" aria-label="JUSS PROTECT ME home"><svg class="crest" viewBox="0 0 40 44" aria-hidden="true"><path d="M20 2 36 8v14c0 10-7 16-16 20C11 38 4 32 4 22V8Z"/><path d="m12 23 6 6 11-14"/></svg><span class="brand-type"><strong>JUSS PROTECT ME</strong><small>MODEL ONE · JUSS & CO.</small></span></a><nav class="nav-links" aria-label="Main"><a href="#promise">Our promise</a><a class="outline" href="https://protect2.jussco.company">Model Two ↗</a></nav></div></header><main><section class="shell hero" aria-labelledby="hero-title"><div class="hero-copy"><p class="eyebrow">Personal protection, reimagined</p><h1 id="hero-title">Your world.<br>Your peace.<br><em>Your control.</em></h1><p class="lead">The way you live is personal. Your protection should be too. A more thoughtful kind of safety, built around the people and moments that matter.</p><div class="actions"><a class="btn" href="#promise">Discover our vision <span aria-hidden="true">↗</span></a><a class="btn secondary" href="#availability">Where we are <span aria-hidden="true">↓</span></a></div></div><div class="visual" aria-hidden="true"><div class="figure"><svg viewBox="0 0 600 610" preserveAspectRatio="xMidYMax meet" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+<defs><radialGradient id="shine"><stop stop-color="#af7659" stop-opacity=".4"/><stop offset="1" stop-color="#100d19" stop-opacity="0"/></radialGradient>
+<linearGradient id="skin" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#bd8059"/><stop offset=".42" stop-color="#82503b"/><stop offset="1" stop-color="#32232a"/></linearGradient>
+<linearGradient id="hair" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#281d23"/><stop offset=".55" stop-color="#0a0910"/><stop offset="1" stop-color="#251823"/></linearGradient>
+<linearGradient id="cloth" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#33313d"/><stop offset=".5" stop-color="#12111b"/><stop offset="1" stop-color="#08090f"/></linearGradient></defs>
+<ellipse cx="332" cy="309" rx="200" ry="240" fill="url(#shine)"/>
+<path d="M91 610c17-87 89-145 179-149l85-5c79 9 135 44 166 154Z" fill="url(#cloth)" stroke="#594547" stroke-width="2"/>
+<path d="M182 302c-8-144 65-243 177-248 112-5 166 86 170 206 1 88-17 176-47 242l-66 32-157-50c-50-66-70-137-77-182Z" fill="url(#hair)"/>
+<path d="M320 415c5 35-2 63-20 78l35 54 72-38-25-54 5-57Z" fill="url(#skin)"/>
+<path d="M255 203c-35 44-34 137-13 182 22 53 61 97 102 99 47 2 90-35 109-92 19-59 16-128-7-171-28-53-67-79-113-78-31 1-60 24-78 60Z" fill="url(#skin)"/>
+<path d="M238 285c-6-82 35-137 92-160 51-20 109-2 144 55-36 16-72 5-106-18-21 24-60 40-96 43-3 27-17 60-34 80Z" fill="url(#hair)"/>
+<path d="M443 215c25 85 1 181-21 236 56-18 94-90 97-181 2-72-36-136-89-160 18 39 23 77 13 105Z" fill="url(#hair)"/>
+<path d="M271 303c15-9 36-11 51-3m52-4c17-10 31-10 47-3" stroke="#4d2b2c" stroke-width="6" fill="none" stroke-linecap="round"/>
+<path d="M280 316c14 7 26 7 38 0m65-9c13 7 23 6 36-2" stroke="#d9a17b" stroke-width="2" fill="none"/>
+<path d="M349 317c-1 24-11 34-9 44 4 8 14 12 25 7" stroke="#5d3935" stroke-width="4" fill="none"/>
+<path d="M320 402c17 11 34 12 53 0" stroke="#663637" stroke-width="5" fill="none" stroke-linecap="round"/>
+<path d="M273 480c-26 22-45 55-57 94l-11 36h292l-27-70c-13-32-37-53-77-64-19 41-36 60-57 83-29-23-45-54-63-79Z" fill="url(#cloth)"/>
+<path d="M285 505c9 37 20 57 50 83m58-81c-10 34-30 63-52 78" stroke="#8c7375" opacity=".48" stroke-width="2" fill="none"/>
+<circle cx="456" cy="337" r="9" fill="none" stroke="#e7bc87" stroke-width="4"/>
+</svg></div><div class="fine">Protection with purpose.<small>People first, always</small></div></div></section><div class="shell scope" id="availability"><p><b>Early-access preview.</b> We're building toward a fuller protection experience. Active device monitoring and threat blocking are not available here yet.</p><span>Beauty in clarity. Strength in choice.</span></div><section class="shell promise" id="promise" aria-labelledby="promise-title"><span class="kicker">The Juss Protect Me promise</span><h2 id="promise-title">Because feeling safe should feel <em>personal.</em></h2><div class="cards"><article class="card"><span class="number">01 / PEACE</span><h3>Room to breathe.</h3><p>Less uncertainty. More confidence in the moments that matter.</p></article><article class="card"><span class="number">02 / PRIVACY</span><h3>Yours to keep.</h3><p>Your personal life deserves respect, discretion, and thoughtful care.</p></article><article class="card"><span class="number">03 / CHOICE</span><h3>Always your call.</h3><p>Helpful guidance that respects your decisions instead of making them for you.</p></article></div></section></main><footer class="shell"><span>© Juss &amp; Co. · Juss Protect Me. People, purpose, protection.</span><span>Discover <a href="https://protect2.jussco.company">Model Two ↗</a></span></footer></div></body></html>
