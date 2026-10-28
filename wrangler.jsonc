@@ -2,6 +2,9 @@
   "name": "juss-protect-me",
   "main": "./worker.mjs",
   "compatibility_date": "2026-10-15",
+  "kv_namespaces": [
+    { "binding": "USERS_KV", "id": "d7c8c098e18b4b78ad9596fc5a9372bf" }
+  ],
   "assets": {
     "directory": "./public",
     "binding": "ASSETS",
