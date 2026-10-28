@@ -28,6 +28,11 @@ function timingSafeEqual(a, b) {
   for (let i = 0; i < a.length; i++) d |= a.charCodeAt(i) ^ b.charCodeAt(i);
   return d === 0;
 }
+function escapeHtml(value) {
+  return String(value ?? '')
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
 async function hmacHex(secret, msg) {
   const key = await crypto.subtle.importKey('raw', enc.encode(secret), { name: 'HMAC', hash: 'SHA-256' }, false, ['sign']);
   return hex(await crypto.subtle.sign('HMAC', key, enc.encode(msg)));
@@ -148,8 +153,12 @@ function pill(state) {
   const cls = state === 'ACTIVE' || state === 'PROVEN' ? 'on' : state === 'NOT BUILT' ? 'off' : 'mid';
   return `<span class="pill ${cls}">${state}</span>`;
 }
-function roomPage(env, session, cfg, live = null, stats = null) {
+function roomPage(env, session, cfg, live = null, stats = null, members = null) {
   const rows = buildState(env, cfg.siteRows, live).map((r) => `<tr><td>${r.name}</td><td>${pill(r.state)}</td><td class="note">${r.note}</td></tr>`).join('');
+  const membersSection = members === null ? '' : `<div class="card rise3">
+    <h2 style="font:600 22px Georgia,serif;margin:0 0 6px">Members</h2>
+    ${members.length ? `<table><tr><th>Email</th><th>Product</th><th>Entitlement</th><th>Key</th><th>Member since</th></tr>${members.map((m) => `<tr><td>${escapeHtml(m.email)}</td><td>Protect Me ${m.plan === 'one' ? 'One' : 'Two'}</td><td>${pill(String(m.entitlement || '').toUpperCase())}</td><td class="note">${m.apiKeyPrefix ? escapeHtml(m.apiKeyPrefix) + '&hellip;' : '—'}</td><td class="note">${m.createdAt ? new Date(m.createdAt).toISOString().slice(0, 10) : '—'}</td></tr>`).join('')}</table>` : '<p class="note">No members yet — accounts appear here automatically the moment a checkout completes.</p>'}
+  </div>`;
   return page('Control room', `
   <div class="brand rise"><b>JUSS &amp; CO.</b><span>Protect · Control Room</span></div>
   <h1 class="rise">Control room</h1>
@@ -164,6 +173,7 @@ function roomPage(env, session, cfg, live = null, stats = null) {
     <h2 style="font:600 22px Georgia,serif;margin:0 0 6px">Systems — state canon</h2>
     <table><tr><th>System</th><th>State</th><th>Receipt</th></tr>${rows}</table>
   </div>
+  ${membersSection}
   <form method="post" action="/founder/logout" class="rise3"><button type="submit" style="background:none;border:1px solid var(--line);color:var(--muted)">Sign out</button></form>
   <p class="foot">Standalone room on the FCR base · Session expires ${new Date(session.exp).toISOString()} · Zero data is invented here — empty means empty.</p>`, cfg.brand);
 }
@@ -175,9 +185,11 @@ export function createFounderRoom(opts = {}) {
     siteRows: opts.siteRows || TWO_SITE_ROWS,
     shieldStat: opts.shieldStat || TWO_SHIELD_STAT,
     statsProvider: opts.statsProvider || null,
+    membersProvider: opts.membersProvider || null,
   };
   async function liveAndStats(env) {
-    if (!cfg.statsProvider) return { live: null, stats: null };
+    const members = cfg.membersProvider ? await cfg.membersProvider(env) : null;
+    if (!cfg.statsProvider) return { live: null, stats: null, members };
     const stats = await cfg.statsProvider(env);
     const modeNote = env.STRIPE_MODE === 'test' ? ' TEST MODE — no real charges.' : '';
     const live = {
@@ -188,7 +200,7 @@ export function createFounderRoom(opts = {}) {
       usersState: stats.users > 0 ? 'ACTIVE' : 'NOT BUILT',
       usersNote: stats.users > 0 ? `${stats.users} account(s); ${stats.activeProtections} entitlement(s) active — switched on automatically at payment.` : 'Accounts are created automatically by completed checkouts.',
     };
-    return { live, stats };
+    return { live, stats, members };
   }
   return {
     async fetch(request, env) {
@@ -223,14 +235,16 @@ export function createFounderRoom(opts = {}) {
       if (pathname === '/founder/room' && request.method === 'GET') {
         const s = configured && (await readSession(request, env));
         if (!s) return new Response(null, { status: 302, headers: { Location: '/founder' } });
-        const { live, stats } = await liveAndStats(env);
-        return new Response(roomPage(env, s, cfg, live, stats), { headers: { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-store' } });
+        const { live, stats, members } = await liveAndStats(env);
+        return new Response(roomPage(env, s, cfg, live, stats, members), { headers: { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-store' } });
       }
       if (pathname === '/api/founder/state' && request.method === 'GET') {
         const s = configured && (await readSession(request, env));
         if (!s) return Response.json({ error: 'unauthorized' }, { status: 401 });
-        const { live } = await liveAndStats(env);
-        return Response.json({ founder: s.email, systems: buildState(env, cfg.siteRows, live) }, { headers: { 'Cache-Control': 'no-store' } });
+        const { live, members } = await liveAndStats(env);
+        const body = { founder: s.email, systems: buildState(env, cfg.siteRows, live) };
+        if (members !== null) body.members = members.map((m) => ({ email: m.email, plan: m.plan, entitlement: m.entitlement, apiKeyPrefix: m.apiKeyPrefix || null, createdAt: m.createdAt || null }));
+        return Response.json(body, { headers: { 'Cache-Control': 'no-store' } });
       }
       if (pathname === '/founder/logout' && request.method === 'POST') {
         return new Response(null, {

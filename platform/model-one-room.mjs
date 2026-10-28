@@ -7,6 +7,7 @@ import { createFounderRoom } from './founder-room.mjs';
 export function createModelOneRoom(opts = {}) {
   return createFounderRoom({
     statsProvider: opts.statsProvider || null,
+    membersProvider: opts.membersProvider || null,
     brand: {
       bg: '#0a0703',
       glow: '#3a2a10',
