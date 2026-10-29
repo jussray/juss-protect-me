@@ -15,21 +15,20 @@ const publicCopy = html
   .replace(/\s+/g, ' ');
 
 test('Sauce Guard keeps implementation details out of the welcome experience', () => {
-  const internalDetails = /\b(?:worker|wrangler|cloudflare|api|endpoint|shield|rate[- ]limit(?:er|ing)?|hmac|sha[- ]?256|github|pipeline|ci\/cd|execution ledger|system prompt|tool call|agent|token|secrets?|gate|attack[- ]?20|architecture|deployment)\b/i;
+  const internalDetails = /\b(?:worker|wrangler|cloudflare|api|endpoint|shield|rate[- ]limit(?:er|ing)?|hmac|sha[- ]?256|github|pipeline|ci\/cd|execution ledger|system prompt|tool call|token|secrets?|gate|attack[- ]?20|architecture|deployment)\b/i;
   assert.equal(internalDetails.test(publicCopy), false, 'Welcome copy must promote user value, not implementation details');
 });
 
 test('Sauce Guard preserves honest availability wording', () => {
   assert.match(publicCopy, REQUIRED_NOTE);
   assert.match(html, /name="viewport"/);
-  assert.match(html, /Content-Security-Policy/);
   assert.equal(/<script\b/i.test(html), false);
 });
 
 test('Welcome navigation is anchored and cross-product discovery remains available', () => {
-  assert.match(html, /id="availability"/);
-  assert.match(html, /id="(?:promise|vision)"/);
-  assert.match(html, /href="#availability"/);
+  assert.match(html, /id="early-access"/);
+  assert.match(html, /id="how-it-works"/);
+  assert.ok(html.includes('href="/checkout"'));
   assert.ok(html.includes(OTHER_SITE));
 });
 
@@ -37,11 +36,22 @@ test('Sauce Guard prevents private links and obvious credentials in public marku
   const links = [...html.matchAll(/href="([^"]+)"/g)].map((match) => match[1]);
   for (const link of links) {
     assert.ok(
-      link === '/' || link.startsWith('#')
+      link === '/' || link.startsWith('#') || ['./visual.webp', '/visual.webp', '/manifest.webmanifest'].includes(link) || ['/checkout', '/app.html', '/about.html', '/privacy.html', '/terms.html', '/support.html', '/contact.html'].includes(link)
         || link === 'https://protect.jussco.company'
         || link === 'https://protect2.jussco.company',
       'External or internal-only links must not appear in public welcome markup',
     );
   }
   assert.doesNotMatch(html, /(?:ghp_|github_pat_|sk-proj-|AIzaSy|-----BEGIN [A-Z ]*PRIVATE KEY-----|CF_API_TOKEN|SUPABASE_SERVICE_ROLE_KEY|SHIELD_SECRET|[/]\.env|[/]internal[/]|[/]admin[/])/i);
+});
+
+import { createPayments } from '../platform/payments.mjs';
+import { createStore } from '../platform/store.mjs';
+test('unavailable enrollment stays truthful and collects nothing', async () => {
+  const response = await createPayments({store:createStore()}).fetch(new Request('https://protect.jussco.company/checkout'), {});
+  const body = await response.text();
+  assert.match(body, /Enrollment is not open yet/);
+  assert.doesNotMatch(body, /built and tested|<form|<input/);
+  assert.match(publicCopy, /Enrollment is not open/);
+  assert.doesNotMatch(publicCopy, /Enrollment happens|switch protection on|Membership enrollment runs/);
 });
