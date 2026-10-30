@@ -6,7 +6,10 @@
 //
 // Required Worker secrets/vars (never hardcoded):
 //   FOUNDER_EMAIL          founder login email
-//   FOUNDER_PASSWORD_HASH  hex PBKDF2-SHA256 of the founder password
+//   FOUNDER_PASSWORD_HASH  hex PBKDF2-SHA256 of the founder password, OR
+//   FOUNDER_PASSWORD       the password itself as a Worker secret (hash is
+//                          derived at login; plain secret = what a human
+//                          sets in the Cloudflare dashboard)
 //   FOUNDER_SALT           hex salt used for the hash
 //   SESSION_SECRET         HMAC key for session cookies
 // Optional: FOUNDER_ITERS (PBKDF2 iterations, default 100000),
@@ -90,7 +93,7 @@ function buildState(env, siteRows = TWO_SITE_ROWS, live = null) {
       ? { paymentsState: 'CONFIGURED', paymentsNote: 'Key present; checkout + webhook are built and tested locally, deploy pending.', usersState: 'NOT BUILT', usersNote: 'Accounts open when payments deploy. Users today: 0. Revenue today: $0.' }
       : { paymentsState: 'NOT BUILT', paymentsNote: 'Checkout + webhook are built and tested locally; Stripe keys land at deploy.', usersState: 'NOT BUILT', usersNote: 'Accounts open when payments deploy. Users today: 0. Revenue today: $0.' };
   }
-  const configured = Boolean(env.FOUNDER_EMAIL && env.FOUNDER_PASSWORD_HASH && env.SESSION_SECRET);
+  const configured = Boolean(env.FOUNDER_EMAIL && (env.FOUNDER_PASSWORD_HASH || env.FOUNDER_PASSWORD) && env.SESSION_SECRET);
   return [
     { name: 'Marketing pages (both models)', state: 'ACTIVE', note: 'Live builds matched to founder concepts; visual PROVEN pending founder device check.' },
     ...siteRows,
@@ -205,7 +208,7 @@ export function createFounderRoom(opts = {}) {
   return {
     async fetch(request, env) {
       const { pathname } = new URL(request.url);
-      const configured = Boolean(env.FOUNDER_EMAIL && env.FOUNDER_PASSWORD_HASH && env.SESSION_SECRET);
+      const configured = Boolean(env.FOUNDER_EMAIL && (env.FOUNDER_PASSWORD_HASH || env.FOUNDER_PASSWORD) && env.SESSION_SECRET);
       if (pathname === '/founder' && request.method === 'GET') {
         const s = configured && (await readSession(request, env));
         if (s) return new Response(null, { status: 302, headers: { Location: '/founder/room' } });
@@ -220,7 +223,8 @@ export function createFounderRoom(opts = {}) {
         const password = String(form.get('password') || '');
         const iters = Number(env.FOUNDER_ITERS || 100000);
         const hash = await hashPassword(password, env.FOUNDER_SALT || '', iters);
-        if (email !== env.FOUNDER_EMAIL || !timingSafeEqual(hash, env.FOUNDER_PASSWORD_HASH)) {
+        const expected = env.FOUNDER_PASSWORD_HASH || (env.FOUNDER_PASSWORD ? await hashPassword(env.FOUNDER_PASSWORD, env.FOUNDER_SALT || '', iters) : '');
+        if (email !== env.FOUNDER_EMAIL || !timingSafeEqual(hash, expected)) {
           return new Response(loginPage('Email or password did not match.', cfg.brand), { status: 401, headers: { 'Content-Type': 'text/html; charset=utf-8' } });
         }
         const s = await makeSession(env);
