@@ -67,6 +67,8 @@ export async function authorizeIntentAction({
   assertIso(now, 'now');
 
   const reasons = [];
+  if (Date.parse(now) < Date.parse(intent.issuedAt)) reasons.push('intent_not_yet_valid');
+  if (Date.parse(now) < Date.parse(grant.issuedAt)) reasons.push('grant_not_yet_valid');
   if (!String(requestedAction ?? '').trim()) reasons.push('requested_action_missing');
   if (grant.intentId !== intent.id) reasons.push('intent_grant_mismatch');
   if (!sameTarget(intent.target, currentTarget)) reasons.push('intent_target_stale');

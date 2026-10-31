@@ -37,6 +37,30 @@ function grant(overrides = {}) {
 
 const verifiedProof = async () => true;
 
+test('future-dated intent or grant cannot authorize before issuance', async () => {
+  for (const candidate of [
+    { intent, grant: grant({ issuedAt: '2026-10-05T22:02:00.000Z' }) },
+    { intent: { ...intent, issuedAt: '2026-10-05T22:02:00.000Z' }, grant: grant() },
+  ]) {
+    const result = await authorizeIntentAction({
+      ...candidate, requestedAction: 'classify', currentTarget: target,
+      now: '2026-10-05T22:01:00.000Z', consequence: 'low_risk',
+      verifyAuthorityProof: verifiedProof,
+    });
+    assert.equal(result.authorized, false);
+  }
+});
+
+test('issuance boundary is inclusive and expiry boundary is exclusive', async () => {
+  const input = {
+    intent, grant: grant(), requestedAction: 'classify', currentTarget: target,
+    consequence: 'low_risk', verifyAuthorityProof: verifiedProof,
+  };
+  assert.equal((await authorizeIntentAction({ ...input, now: grant().issuedAt })).authorized, true);
+  assert.equal((await authorizeIntentAction({ ...input, now: grant().expiresAt })).authorized, false);
+});
+
+
 test('intent is not authority by itself', async () => {
   const result = await authorizeIntentAction({
     intent,

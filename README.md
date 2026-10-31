@@ -40,6 +40,10 @@ No third-party device-intelligence provider is required by the kernel. Provider 
 
 Run:
 
+The authority kernel requires the current server time to be at or after both
+intent and grant issuance, and strictly before grant expiry. A future-dated
+grant cannot authorize an action, even when its proof verifier succeeds.
+
 ```bash
 npm test
 ```
