@@ -6,6 +6,15 @@
   "kv_namespaces": [
     { "binding": "USERS_KV", "id": "d7c8c098e18b4b78ad9596fc5a9372bf" }
   ],
+  "previews": {
+    "vars": {
+      "FOUNDER_EMAIL": "preview-only@example.invalid",
+      "FOUNDER_SALT": "preview-only-isolated-model-one-v1"
+    },
+    "kv_namespaces": [
+      { "binding": "USERS_KV", "id": "4999845b77f5448291a09cb176c653ec" }
+    ]
+  },
   "assets": {
     "directory": "./public",
     "binding": "ASSETS",
