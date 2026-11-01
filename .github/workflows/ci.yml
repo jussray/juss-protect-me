@@ -20,3 +20,15 @@ jobs:
           cache: npm
       - run: npm ci --ignore-scripts
       - run: npm test
+      - name: Install Chromium for desktop and mobile Playwright
+        run: npx playwright install --with-deps chromium
+      - name: Verify public front door and closed enrollment in local Worker
+        run: npx playwright test --config playwright.config.mjs
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: model-one-mobile-playwright
+          path: |
+            playwright-report/
+            test-results/
+          retention-days: 14
