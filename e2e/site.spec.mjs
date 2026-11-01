@@ -66,3 +66,23 @@ test('Model One About is findable, distinct, honest and readable on mobile', asy
     await page.screenshot({ path: `test-results/model-one-about-${width}.png` });
   }
 });
+
+
+test('Model One product catalog navigates from home and stays honest on mobile', async ({ page }) => {
+  for (const width of [320, 390, 1280]) {
+    await page.setViewportSize({ width, height: 820 });
+    await page.goto('/');
+    await page.getByRole('navigation', { name: 'Primary navigation' }).getByRole('link', { name: 'Products' }).click();
+    await expect(page).toHaveURL(/\/products\.html$/);
+    await expect(page.locator('.cards .card')).toHaveCount(4);
+    for (const title of ['Guided Safety Checkup', 'Device & Browser Safety', 'Identity & Scam Safety', 'Family Privacy & Recovery']) {
+      await expect(page.getByRole('heading', { name: title })).toBeVisible();
+    }
+    await expect(page.getByText(/Live device scanning is not active/)).toBeVisible();
+    await expect(page.getByRole('link', { name: /Open the checkup preview/ })).toHaveAttribute('href', '/app.html');
+    await expect(page.locator('link[rel="canonical"]')).toHaveAttribute('href', 'https://protect.jussco.company/products.html');
+    const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
+    expect(overflow).toBeLessThanOrEqual(1);
+    await page.screenshot({ path: `test-results/model-one-products-${width}.png` });
+  }
+});
