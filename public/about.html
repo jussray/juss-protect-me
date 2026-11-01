@@ -63,6 +63,8 @@ p,li{color:#ddd3ee}.card{background:var(--panel);border:1px solid var(--line);bo
 .foot{margin-top:34px;color:var(--muted);font-size:13px}.foot a{margin-right:16px}
 @keyframes riseIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}.rise{animation:riseIn .7s cubic-bezier(.2,.7,.2,1) both}
 @media(prefers-reduced-motion:reduce){*{animation:none!important}}
+/* Narrow screens: keep the long brand line and footer links inside the viewport. */
+@media(max-width:480px){.brand{letter-spacing:.1em;overflow-wrap:anywhere}.card{padding:22px 18px;min-width:0;overflow-wrap:anywhere}.foot{display:flex;flex-wrap:wrap;gap:8px 12px}.foot a{margin-right:0}}
 </style>
 </head>
 <body>
