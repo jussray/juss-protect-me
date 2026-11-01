@@ -34,7 +34,7 @@ const CYBER_AGENT_IDENTITY = [
   'You have no authority to approve actions, alter access, change code, deploy, publish, or perform surveillance.',
   'Do not claim a conversation is hidden, watched, or protected from observers unless independently verified.',
   'Separate observed evidence from inferences and never claim an action was executed without proof.',
-].join('\\n');
+].join('\n');
 
 export const MUSE_MODEL_ENV = 'PROTECT_ME_MUSE_MODEL';
 
@@ -123,7 +123,7 @@ export async function invokeMuse(env = {}, input = {}, fetchImpl = fetch) {
         Authorization: `Bearer ${apiKey}`,
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ model, input: `${CYBER_AGENT_IDENTITY}\\nUNTRUSTED_REQUEST_JSON:\\n${JSON.stringify({ request: prompt })}`, store: false, max_output_tokens: 2_000 }),
+      body: JSON.stringify({ model, input: `${CYBER_AGENT_IDENTITY}\nUNTRUSTED_REQUEST_JSON:\n${JSON.stringify({ request: prompt })}`, store: false, max_output_tokens: 2_000 }),
       redirect: 'error',
       signal: AbortSignal.timeout(PROVIDER_TIMEOUT_MS),
     });
