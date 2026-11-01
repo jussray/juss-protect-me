@@ -86,3 +86,31 @@ test('Model One product catalog navigates from home and stays honest on mobile',
     await page.screenshot({ path: `test-results/model-one-products-${width}.png` });
   }
 });
+
+test('all four benefit cards open their matching checkup group on mobile and desktop', async ({ page }) => {
+  const cards = [
+    ['Device Safety', 'device-safety'],
+    ['Identity Protection', 'identity-protection'],
+    ['Everyday Safety', 'everyday-safety'],
+    ['Privacy First', 'privacy-first'],
+  ];
+  for (const width of [320, 390, 1280]) {
+    await page.setViewportSize({ width, height: 820 });
+    for (const [label, slug] of cards) {
+      await page.goto('/');
+      const card = page.getByRole('link', { name: `Open ${label} guided checkup` });
+      await expect(card).toHaveAttribute('href', `/app.html#${slug}`);
+      await card.click();
+      await expect(page).toHaveURL(new RegExp(`/app\\.html#${slug}$`));
+      const target = page.locator(`#${slug}`);
+      await expect(target).toBeVisible();
+      await expect(target.getByRole('heading', { name: label })).toBeVisible();
+      const onscreen = await target.evaluate(el => {
+        const bounds = el.getBoundingClientRect();
+        return bounds.top < window.innerHeight && bounds.bottom > 0;
+      });
+      expect(onscreen).toBe(true);
+      await expect(page.getByText(/does not scan your device/i)).toBeVisible();
+    }
+  }
+});
