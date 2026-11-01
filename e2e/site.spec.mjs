@@ -115,3 +115,37 @@ test('all four benefit cards open their matching checkup group on mobile and des
     }
   }
 });
+
+test('dedicated Juss Protect Me guide has clear navigation, SEO facts and responsive layout', async ({ page, request }) => {
+  for (const [width, height] of [[320, 740], [390, 844], [1280, 800]]) {
+    await page.setViewportSize({ width, height });
+    await page.goto('/');
+    await expect(page.getByRole('navigation', { name: 'Primary navigation' }).getByRole('link', { name: 'How It Works' })).toHaveAttribute('href', '/how-it-works.html');
+    await expect(page.locator('#how-it-works')).toHaveCount(0);
+    await page.getByRole('navigation', { name: 'Primary navigation' }).getByRole('link', { name: 'How It Works' }).click();
+    await expect(page).toHaveURL(/\\/how-it-works\\.html$/);
+    await expect(page.getByRole('heading', { level: 1, name: 'How Juss Protect Me Works' })).toBeVisible();
+    await expect(page.locator('link[rel="canonical"]')).toHaveAttribute('href', 'https://protect.jussco.company/how-it-works.html');
+    await expect(page.locator('meta[name="description"]')).toHaveAttribute('content', /checkup|agent security|AI agent|permissions|cybersecurity/i);
+    await expect(page.locator('.step')).toHaveCount(3);
+    await expect(page.locator('[itemtype="https://schema.org/Question"]')).toHaveCount(4);
+    await expect(page.getByRole('heading', { name: 'What is available, and what is not' })).toBeVisible();
+    const sizes = await page.evaluate(() => ({
+      documentWidth: document.documentElement.scrollWidth,
+      viewportWidth: document.documentElement.clientWidth,
+    }));
+    expect(sizes.documentWidth).toBeLessThanOrEqual(sizes.viewportWidth + 1);
+    await page.screenshot({ path: `test-results/how-it-works-one-${width}.png`, fullPage: true });
+  }
+  const sitemap = await request.get('/sitemap.xml');
+  expect(sitemap.status()).toBe(200);
+  expect(await sitemap.text()).toContain('https://protect.jussco.company/how-it-works.html');
+  const robots = await request.get('/robots.txt');
+  expect(robots.status()).toBe(200);
+  expect(await robots.text()).toContain('Sitemap: https://protect.jussco.company/sitemap.xml');
+});
+
+test('checkup app links to its public How It Works explanation', async ({ page }) => {
+  await page.goto('/app.html');
+  await expect(page.getByRole('link', { name: 'Learn how Juss Protect Me works' })).toHaveAttribute('href', '/how-it-works.html');
+});
