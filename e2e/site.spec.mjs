@@ -150,3 +150,30 @@ test('checkup app links to its public How It Works explanation', async ({ page }
   await page.goto('/app.html');
   await expect(page.getByRole('link', { name: 'Learn how Juss Protect Me works' })).toHaveAttribute('href', '/how-it-works.html');
 });
+
+test('Model One product page has separate SEO GEO catalog with responsive navigation', async ({ page, request }) => {
+  for (const width of [320, 390, 1280]) {
+    await page.setViewportSize({ width, height: 820 });
+    const response = await page.goto('/products.html');
+    expect(response?.status()).toBe(200);
+    await expect(page).toHaveTitle("Personal Cyber Safety Products | Juss Protect Me | Juss & Co.");
+    await expect(page.locator('link[rel="canonical"]')).toHaveAttribute('href', 'https://protect.jussco.company/products.html');
+    await expect(page.locator('meta[property="og:url"]')).toHaveAttribute('content', 'https://protect.jussco.company/products.html');
+    await expect(page.getByRole('navigation', { name: 'Breadcrumb' })).toBeVisible();
+    await expect(page.locator('.faq-item')).toHaveCount(3);
+    for (const id of ["guided-safety-checkup","device-browser-safety","identity-scam-safety","family-privacy-recovery"]) await expect(page.locator('#' + id)).toBeVisible();
+    const graph = JSON.parse(await page.locator('script[type="application/ld+json"]').textContent())['@graph'];
+    expect(graph.find(node => node['@type'] === 'CollectionPage').url).toBe('https://protect.jussco.company/products.html');
+    const items = graph.find(node => node['@type'] === 'ItemList');
+    expect(items.itemListElement).toHaveLength(4);
+    expect(graph.find(node => node['@type'] === 'FAQPage').mainEntity).toHaveLength(3);
+    expect(items.itemListElement.map(node => node.item.url)).toEqual(["guided-safety-checkup","device-browser-safety","identity-scam-safety","family-privacy-recovery"].map(id => 'https://protect.jussco.company/products.html#' + id));
+    expect(await page.evaluate(() => document.documentElement.scrollWidth > document.documentElement.clientWidth + 1)).toBe(false);
+    await page.screenshot({ path: `test-results/model-one-products-seo-${width}.png`, fullPage: true });
+  }
+  const sitemap = await request.get('/sitemap.xml');
+  expect(sitemap.status()).toBe(200);
+  expect(await sitemap.text()).toContain('https://protect.jussco.company/products.html');
+  await page.goto('/app.html');
+  await expect(page.getByRole('link', { name: 'explore all protection products' })).toHaveAttribute('href', '/products.html');
+});
