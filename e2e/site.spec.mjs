@@ -75,7 +75,7 @@ test('Model One product catalog navigates from home and stays honest on mobile',
     await page.setViewportSize({ width, height: 820 });
     await page.goto('/');
     await page.getByRole('navigation', { name: 'Primary navigation' }).getByRole('link', { name: 'Products' }).click();
-    await expect(page).toHaveURL(/\/products\.html$/);
+    await expect(page).toHaveURL((url) => url.pathname === '/products');
     await expect(page.locator('.cards .card')).toHaveCount(4);
     for (const title of ['Guided Safety Checkup', 'Device & Browser Safety', 'Identity & Scam Safety', 'Family Privacy & Recovery']) {
       await expect(page.getByRole('heading', { name: title })).toBeVisible();
@@ -103,7 +103,7 @@ test('all four benefit cards open their matching checkup group on mobile and des
       const card = page.getByRole('link', { name: `Open ${label} guided checkup` });
       await expect(card).toHaveAttribute('href', `/app.html#${slug}`);
       await card.click();
-      await expect(page).toHaveURL(new RegExp(`/app\\.html#${slug}$`));
+      await expect(page).toHaveURL((url) => url.pathname === '/app' && url.hash === `#${slug}`);
       const target = page.locator(`#${slug}`);
       await expect(target).toBeVisible();
       await expect(target.getByRole('heading', { name: label })).toBeVisible();
@@ -121,12 +121,12 @@ test('dedicated Juss Protect Me guide has clear navigation, SEO facts and respon
   for (const [width, height] of [[320, 740], [390, 844], [1280, 800]]) {
     await page.setViewportSize({ width, height });
     await page.goto('/');
-    await expect(page.getByRole('navigation', { name: 'Primary navigation' }).getByRole('link', { name: 'How It Works' })).toHaveAttribute('href', '/how-it-works.html');
+    await expect(page.getByRole('navigation', { name: 'Primary navigation' }).getByRole('link', { name: 'How It Works' })).toHaveAttribute('href', '/how-it-works');
     await expect(page.locator('#how-it-works')).toHaveCount(0);
     await page.getByRole('navigation', { name: 'Primary navigation' }).getByRole('link', { name: 'How It Works' }).click();
-    await expect(page).toHaveURL((url) => url.pathname === '/how-it-works.html');
+    await expect(page).toHaveURL((url) => url.pathname === '/how-it-works');
     await expect(page.getByRole('heading', { level: 1, name: 'How Juss Protect Me Works' })).toBeVisible();
-    await expect(page.locator('link[rel="canonical"]')).toHaveAttribute('href', 'https://protect.jussco.company/how-it-works.html');
+    await expect(page.locator('link[rel="canonical"]')).toHaveAttribute('href', 'https://protect.jussco.company/how-it-works');
     await expect(page.locator('meta[name="description"]')).toHaveAttribute('content', /checkup|agent security|AI agent|permissions|cybersecurity/i);
     await expect(page.locator('.step')).toHaveCount(3);
     await expect(page.locator('[itemtype="https://schema.org/Question"]')).toHaveCount(4);
@@ -140,7 +140,7 @@ test('dedicated Juss Protect Me guide has clear navigation, SEO facts and respon
   }
   const sitemap = await request.get('/sitemap.xml');
   expect(sitemap.status()).toBe(200);
-  expect(await sitemap.text()).toContain('https://protect.jussco.company/how-it-works.html');
+  expect(await sitemap.text()).toContain('https://protect.jussco.company/how-it-works');
   const robots = await request.get('/robots.txt');
   expect(robots.status()).toBe(200);
   expect(await robots.text()).toContain('Sitemap: https://protect.jussco.company/sitemap.xml');
@@ -148,7 +148,7 @@ test('dedicated Juss Protect Me guide has clear navigation, SEO facts and respon
 
 test('checkup app links to its public How It Works explanation', async ({ page }) => {
   await page.goto('/app.html');
-  await expect(page.getByRole('link', { name: 'Learn how Juss Protect Me works' })).toHaveAttribute('href', '/how-it-works.html');
+  await expect(page.getByRole('link', { name: 'Learn how Juss Protect Me works' })).toHaveAttribute('href', '/how-it-works');
 });
 
 test('Model One product page has separate SEO GEO catalog with responsive navigation', async ({ page, request }) => {
