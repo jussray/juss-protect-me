@@ -72,7 +72,7 @@ document.getElementById('reset').addEventListener('click', () => {
 render();
 
 // Deep links from the four home cards work even though groups are rendered in JS.
-const requestedGroup = decodeURIComponent(location.hash.slice(1));
+const requestedGroup = location.hash.slice(1);
 if (GROUP_IDS.includes(requestedGroup)) {
   const section = document.getElementById(requestedGroup);
   section?.scrollIntoView({ block: 'start' });
