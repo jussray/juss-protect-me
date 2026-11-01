@@ -26,6 +26,7 @@ const GROUPS = [
     ['I closed accounts I no longer use', 'Every forgotten account is a stored copy of your information. Close the ones you do not use.'],
   ]},
 ];
+const GROUP_IDS = ['device-safety', 'identity-protection', 'everyday-safety', 'privacy-first'];
 const KEY = 'jpm-checkup-v1';
 let state = {};
 try { state = JSON.parse(localStorage.getItem(KEY) || '{}'); } catch { state = {}; }
@@ -34,6 +35,8 @@ const groupsEl = document.getElementById('groups');
 GROUPS.forEach((g, gi) => {
   const div = document.createElement('section');
   div.className = 'group rise2';
+  div.id = GROUP_IDS[gi];
+  div.setAttribute('aria-label', g.title);
   div.innerHTML = `<h2>${g.title}</h2><p>${g.sub}</p>`;
   g.items.forEach(([label, tip], ii) => {
     const id = `${gi}-${ii}`;
@@ -67,6 +70,13 @@ document.getElementById('reset').addEventListener('click', () => {
   location.reload();
 });
 render();
+
+// Deep links from the four home cards work even though groups are rendered in JS.
+const requestedGroup = decodeURIComponent(location.hash.slice(1));
+if (GROUP_IDS.includes(requestedGroup)) {
+  const section = document.getElementById(requestedGroup);
+  section?.scrollIntoView({ block: 'start' });
+}
 
 // Installability: service worker + install prompt.
 if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js').catch(() => {});
