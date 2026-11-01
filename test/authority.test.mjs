@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
+import { readFile } from 'node:fs/promises';
 
 import { authorizeIntentAction } from '../src/authority.mjs';
 
@@ -158,4 +159,19 @@ test('expired or revoked authority fails closed', async () => {
     verifyAuthorityProof: verifiedProof,
   });
   assert.equal(revoked.reasons.includes('grant_revoked'), true);
+});
+
+// Preview data must never be able to read or mutate the production user/entitlement store.
+test('Worker preview must not reuse production KV or founder inputs', async () => {
+  const config = JSON.parse(await readFile(new URL('../wrangler.jsonc', import.meta.url), 'utf8'));
+  const binding = (set) => set?.find((item) => item.binding === 'USERS_KV')?.id;
+  const production = binding(config.kv_namespaces);
+  const preview = binding(config.previews?.kv_namespaces);
+  assert.ok(production, 'production USERS_KV binding required');
+  assert.ok(preview, 'preview USERS_KV binding required');
+  assert.notEqual(preview, production, 'preview must not bind the production user store');
+  assert.ok(config.previews?.vars?.FOUNDER_EMAIL, 'preview founder identity required');
+  assert.notEqual(config.previews.vars.FOUNDER_EMAIL, config.vars.FOUNDER_EMAIL);
+  assert.ok(config.previews?.vars?.FOUNDER_SALT, 'preview founder salt required');
+  assert.notEqual(config.previews.vars.FOUNDER_SALT, config.vars.FOUNDER_SALT);
 });
