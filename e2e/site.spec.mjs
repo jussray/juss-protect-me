@@ -101,17 +101,13 @@ test('all four benefit cards open their matching checkup group on mobile and des
     for (const [label, slug] of cards) {
       await page.goto('/');
       const card = page.getByRole('link', { name: `Open ${label} guided checkup` });
-      await expect(card).toHaveAttribute('href', `/app.html#${slug}`);
+      await expect(card).toHaveAttribute('href', `/app#${slug}`);
       await card.click();
       await expect(page).toHaveURL((url) => url.pathname === '/app' && url.hash === `#${slug}`);
       const target = page.locator(`#${slug}`);
       await expect(target).toBeVisible();
       await expect(target.getByRole('heading', { name: label })).toBeVisible();
-      const onscreen = await target.evaluate(el => {
-        const bounds = el.getBoundingClientRect();
-        return bounds.top < window.innerHeight && bounds.bottom > 0;
-      });
-      expect(onscreen).toBe(true);
+      await expect(target).toBeInViewport({ ratio: 0.01 });
       await expect(page.getByText(/does not scan your device/i)).toBeVisible();
     }
   }
@@ -176,4 +172,11 @@ test('Model One product page has separate SEO GEO catalog with responsive naviga
   expect(await sitemap.text()).toContain('https://protect.jussco.company/products.html');
   await page.goto('/app.html');
   await expect(page.getByRole('link', { name: 'explore all protection products' })).toHaveAttribute('href', '/products.html');
+});
+
+test('checkup route preserves a narrow same-origin script policy', async ({ request }) => {
+  const response = await request.get('/app');
+  expect(response.status()).toBe(200);
+  expect(response.headers()['content-security-policy']).toContain("script-src 'self'");
+  expect(response.headers()['content-security-policy']).toContain("form-action 'none'");
 });
