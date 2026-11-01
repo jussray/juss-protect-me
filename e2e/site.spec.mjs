@@ -44,6 +44,7 @@ test('Model One mobile checkup preview explains it is not an antivirus scan', as
   expect(preview?.status()).toBe(200);
   await expect(page.getByRole('heading', { name: /Your Protect checkup/ })).toBeVisible();
   await expect(page.getByText(/does not scan your device/i)).toBeVisible();
+  await expect(page.getByRole('link', { name: 'read about Model One' })).toHaveAttribute('href', '/about.html');
   await page.screenshot({ path: 'test-results/model-one-checkup-mobile.png' });
 });
 
