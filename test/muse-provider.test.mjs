@@ -50,7 +50,7 @@ test('bounded call returns provider:meta evidence and never serializes the key',
   assert.match(sent.input, /founder Juss/);
   assert.match(sent.input, /not authentication, consent, or authorization/);
   assert.match(sent.input, /UNTRUSTED_REQUEST_JSON:/);
-  assert.deepEqual(JSON.parse(sent.input.split('UNTRUSTED_REQUEST_JSON:\\n')[1]), { request: 'challenge this claim' });
+  assert.deepEqual(JSON.parse(sent.input.split('UNTRUSTED_REQUEST_JSON:\n')[1]), { request: 'challenge this claim' });
   assert.equal(JSON.stringify(sent).includes(KEY), false);
   assert.equal(JSON.stringify(result).includes(KEY), false);
 });
