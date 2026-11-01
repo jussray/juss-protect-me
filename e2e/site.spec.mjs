@@ -46,3 +46,23 @@ test('Model One mobile checkup preview explains it is not an antivirus scan', as
   await expect(page.getByText(/does not scan your device/i)).toBeVisible();
   await page.screenshot({ path: 'test-results/model-one-checkup-mobile.png' });
 });
+
+test('Model One About is findable, distinct, honest and readable on mobile', async ({ page }) => {
+  for (const width of [320, 390, 1280]) {
+    await page.setViewportSize({ width, height: 800 });
+    const response = await page.goto('/about.html');
+    expect(response?.status()).toBe(200);
+    await expect(page).toHaveTitle('About Juss Protect Me | Personal Cyber Safety | Juss & Co.');
+    await expect(page.getByRole('heading', { level: 1, name: /About Juss Protect Me: people-first online safety/ })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Who is Juss Protect Me for?' })).toBeVisible();
+    await expect(page.getByText(/not a live device scan, antivirus service/i)).toBeVisible();
+    await expect(page.locator('link[rel="canonical"]')).toHaveAttribute('href', 'https://protect.jussco.company/about.html');
+    await expect(page.locator('meta[name="description"]')).toHaveAttribute('content', /personal cybersecurity project/);
+    const data = JSON.parse(await page.locator('script[type="application/ld+json"]').textContent());
+    expect(data['@graph'].find((entry) => entry['@type'] === 'AboutPage')?.mainEntity?.['@id']).toBe('https://protect.jussco.company/#product');
+    await expect(page.getByRole('link', { name: /Juss Protect Me 2 \(Model Two\)/ })).toHaveAttribute('href', 'https://protect2.jussco.company/about.html');
+    const overflow = await page.evaluate(() => document.documentElement.scrollWidth > document.documentElement.clientWidth + 1);
+    expect(overflow).toBe(false);
+    await page.screenshot({ path: `test-results/model-one-about-${width}.png` });
+  }
+});
