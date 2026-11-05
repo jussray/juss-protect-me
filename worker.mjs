@@ -49,6 +49,11 @@ export default {
     if (path === '/founder' || path.startsWith('/founder/') || path === '/checkout' || path.startsWith('/checkout/') || path === '/buy' || path === '/account' || path === '/account/rotate' || path === '/account/policy') {
       headers.set('Content-Security-Policy', "default-src 'none'; img-src 'self'; style-src 'unsafe-inline'; font-src 'self'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'; object-src 'none'; upgrade-insecure-requests");
     }
+    // Only the guided checkup app needs same-origin JS and service-worker access.
+    // All marketing, admin and API routes retain their stricter policies.
+    if (path === '/app' || path === '/app.html') {
+      headers.set('Content-Security-Policy', "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self'; worker-src 'self'; manifest-src 'self'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'; object-src 'none'");
+    }
     if (path === '/api' || path.startsWith('/api/')) headers.set('Cache-Control', 'no-store');
     return new Response(result.body, { status: result.status, statusText: result.statusText, headers });
   },
