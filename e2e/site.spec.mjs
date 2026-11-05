@@ -24,17 +24,18 @@ test('Model One desktop and phones preserve distinct branding, layout and closed
     expect(sizes.documentWidth).toBeLessThanOrEqual(sizes.viewportWidth + 1);
     const join = page.getByRole('link', { name: /Join Early Access/ });
     await expect(join).toHaveAttribute('href', '/checkout');
-    const socialLinks = [
-      ['Juss & Co. on Instagram', 'https://www.instagram.com/jussnco/'],
-      ['Juss Ray on YouTube', 'https://www.youtube.com/channel/UCpEsqUi3uDpiNonJuu1hOKQ'],
-      ['Juss Rayy on LinkedIn', 'https://www.linkedin.com/in/juss-rayy-13ba691a1'],
+    // Blueprint footer (Model One): bare JUSS & CO. wordmark + five text links; no social row.
+    const footerLinks = [
+      ['About', '/about'],
+      ['Privacy', '/privacy.html'],
+      ['Terms', '/terms.html'],
+      ['Support', '/support.html'],
+      ['Contact', '/contact.html'],
     ];
-    await expect(page.locator('.socials a')).toHaveCount(socialLinks.length);
-    for (const [name, href] of socialLinks) {
-      const link = page.getByRole('link', { name, exact: true });
+    await expect(page.locator('.socials a')).toHaveCount(0);
+    for (const [name, href] of footerLinks) {
+      const link = page.locator('.footer-links').getByRole('link', { name, exact: true });
       await expect(link).toHaveAttribute('href', href);
-      await expect(link).toHaveAttribute('target', '_blank');
-      await expect(link).toHaveAttribute('rel', 'noopener noreferrer');
     }
     await page.screenshot({ path: `test-results/model-one-width-${width}.png` });
     await join.click();
