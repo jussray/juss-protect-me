@@ -1,3 +1,4 @@
+import { assessSauceGuard, securityCapabilities } from '../security/sauce-guard.mjs';
 // Juss Protect Me — Founder Room (standalone surface, FCR base).
 // Slots into the product Worker behind the Shield. Zero client-side JS:
 // pages are server-rendered, motion is CSS-first per the dynamic-builds
@@ -132,6 +133,7 @@ button{margin-top:22px;padding:13px 26px;border:0;border-radius:999px;background
 .foot{margin-top:30px;color:var(--off);font-size:13px}
 @keyframes riseIn{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
 .rise{animation:riseIn .7s cubic-bezier(.2,.7,.2,1) both}.rise2{animation:riseIn .7s cubic-bezier(.2,.7,.2,1) .1s both}.rise3{animation:riseIn .7s cubic-bezier(.2,.7,.2,1) .2s both}
+.sg-check textarea,.sg-check select{display:block;width:100%;padding:13px 14px;border-radius:12px;border:1px solid var(--line);background:var(--panel);color:var(--ink);font:inherit}.sg-flag{display:flex;gap:10px;align-items:center;letter-spacing:0;text-transform:none}.sg-flag input{width:auto;accent-color:var(--violet)}
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 `; }
 function page(title, body, brand = DEFAULT_BRAND) {
@@ -156,6 +158,45 @@ function pill(state) {
   const cls = state === 'ACTIVE' || state === 'PROVEN' ? 'on' : state === 'NOT BUILT' ? 'off' : 'mid';
   return `<span class="pill ${cls}">${state}</span>`;
 }
+
+function sauceGuardPage(session, cfg, result = null) {
+  const capability = securityCapabilities(cfg.securityScope);
+  const modelName = cfg.securityScope === 'personal' ? 'MODEL 01 · PERSONAL SECURITY' : 'MODEL 02 · SYSTEM SECURITY';
+  const verdict = result
+    ? '<div class="card rise2" role="status"><h2>Review result · ' + escapeHtml(result.disposition) + '</h2>'
+      + '<p class="note">This is a source-level screening result, not permission to publish, deploy, or share. Independent founder approval and execution-time proof are still required.</p>'
+      + (result.findings.length
+        ? '<p class="note"><strong>Finding codes:</strong> ' + result.findings.map(escapeHtml).join(' · ') + '</p>'
+        : '<p class="note">No matching patterns or evidence-state blockers found. Unrecognized leaks may still exist.</p>')
+      + '</div>'
+    : '';
+  const body = '<div class="brand rise"><b>JUSS &amp; CO.</b><span>Sauce Guard · Private security console</span></div>'
+    + '<p class="note rise">PROTECT ME / ' + escapeHtml(modelName) + '</p>'
+    + '<h1 class="rise">Sauce Guard <span style="color:var(--violet)">/ Cyber Defense</span></h1>'
+    + '<p class="sub rise">An independent, founder-only screening boundary for public claims, accidental secret disclosure and private intellectual property. Existing model boundaries remain separate.</p>'
+    + '<div class="grid rise2">'
+    + '<div class="stat"><div class="k">Policy</div><div class="v" style="font-size:20px">Source implemented</div><p class="note">Credential patterns, identity-scoped screening, claim freshness.</p></div>'
+    + '<div class="stat"><div class="k">Live telemetry</div><div class="v" style="font-size:20px">Unknown</div><p class="note">No production event ingestion is implied by this screen.</p></div>'
+    + '<div class="stat"><div class="k">Authority</div><div class="v" style="font-size:20px">Founder gated</div><p class="note">A clean review never authorizes external release.</p></div>'
+    + '</div>'
+    + '<div class="card rise3"><h2 style="font:600 23px Georgia,serif">Inspect a proposed public statement</h2>'
+    + '<p class="note">Use synthetic or already public text only. Never paste actual keys, passwords, raw private evidence or customer records into a diagnostic form.</p>'
+    + '<form class="sg-check" method="post" action="/founder/sauce-guard/check">'
+    + '<label for="sg-content">Public-facing draft</label><textarea id="sg-content" name="content" rows="4" maxlength="32768" required placeholder="Describe an already-public or synthetic product outcome"></textarea>'
+    + '<label for="sg-state">Evidence state</label><select id="sg-state" name="state" required><option value="UNKNOWN">UNKNOWN</option><option value="CURRENT">CURRENT</option><option value="HISTORICAL">HISTORICAL</option><option value="STALE">STALE</option><option value="SUPERSEDED">SUPERSEDED</option></select>'
+    + '<label for="sg-evidence">Public-safe evidence reference (CURRENT)</label><input id="sg-evidence" name="evidence_ref" placeholder="Approved public evidence reference">'
+    + '<label for="sg-asof">As-of date (HISTORICAL)</label><input id="sg-asof" name="historical_asof" type="date">'
+    + '<label class="sg-flag"><input type="checkbox" name="private_impl" value="1"> Contains private implementation details</label>'
+    + '<label class="sg-flag"><input type="checkbox" name="private_metrics" value="1"> Contains unpublished metrics</label>'
+    + '<label class="sg-flag"><input type="checkbox" name="customer_data" value="1"> Contains customer data</label>'
+    + '<button type="submit">Inspect without publishing</button></form></div>'
+    + verdict
+    + '<p class="foot">Signed-in founder review · ' + escapeHtml(session.email) + ' · ' + escapeHtml(capability.schema)
+    + ' · Production protection: ' + escapeHtml(capability.productionProtection)
+    + ' · <a href="/founder/room">Return to control room</a></p>';
+  return page('Sauce Guard', body, cfg.brand);
+}
+
 function roomPage(env, session, cfg, live = null, stats = null, members = null) {
   const rows = buildState(env, cfg.siteRows, live).map((r) => `<tr><td>${r.name}</td><td>${pill(r.state)}</td><td class="note">${r.note}</td></tr>`).join('');
   const membersSection = members === null ? '' : `<div class="card rise3">
@@ -177,6 +218,7 @@ function roomPage(env, session, cfg, live = null, stats = null, members = null) 
     <table><tr><th>System</th><th>State</th><th>Receipt</th></tr>${rows}</table>
   </div>
   ${membersSection}
+  <div class="card rise3"><h2 style="font:600 22px Georgia,serif;margin:0 0 6px">Sauce Guard · Cyber Defense</h2><p class="note">Private evidence and content screening, scoped to this product. Runtime protection and deployment remain separately verified.</p><a href="/founder/sauce-guard">Open security console</a></div>
   <form method="post" action="/founder/logout" class="rise3"><button type="submit" style="background:none;border:1px solid var(--line);color:var(--muted)">Sign out</button></form>
   <p class="foot">Standalone room on the FCR base · Session expires ${new Date(session.exp).toISOString()} · Zero data is invented here — empty means empty.</p>`, cfg.brand);
 }
@@ -185,6 +227,7 @@ const TWO_SHIELD_STAT = { k: 'Edge Shield', v: 'On', note: 'Guarding this Worker
 export function createFounderRoom(opts = {}) {
   const cfg = {
     brand: { ...DEFAULT_BRAND, ...(opts.brand || {}) },
+    securityScope: opts.securityScope === 'personal' ? 'personal' : 'infrastructure',
     siteRows: opts.siteRows || TWO_SITE_ROWS,
     shieldStat: opts.shieldStat || TWO_SHIELD_STAT,
     statsProvider: opts.statsProvider || null,
@@ -236,6 +279,46 @@ export function createFounderRoom(opts = {}) {
           },
         });
       }
+
+      if (pathname === '/founder/sauce-guard' && request.method === 'GET') {
+        const session = configured && (await readSession(request, env));
+        if (!session) return new Response(null, { status: 302, headers: { Location: '/founder' } });
+        return new Response(sauceGuardPage(session, cfg), { headers: { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-store' } });
+      }
+      if (pathname === '/founder/sauce-guard/check' && request.method === 'POST') {
+        const session = configured && (await readSession(request, env));
+        if (!session) return new Response('Unauthorized', { status: 401, headers: { 'Cache-Control': 'no-store' } });
+        if (request.headers.get('Origin') !== new URL(request.url).origin) {
+          return new Response('Forbidden', { status: 403, headers: { 'Cache-Control': 'no-store' } });
+        }
+        if (!/^application\/x-www-form-urlencoded(?:;|$)/i.test(request.headers.get('Content-Type') || '')) {
+          return new Response('Unsupported media type', { status: 415, headers: { 'Cache-Control': 'no-store' } });
+        }
+        if (Number(request.headers.get('Content-Length')) > 48_000) {
+          return new Response('Too large', { status: 413, headers: { 'Cache-Control': 'no-store' } });
+        }
+        const raw = await request.text();
+        if (raw.length > 48_000) return new Response('Too large', { status: 413, headers: { 'Cache-Control': 'no-store' } });
+        const fields = new URLSearchParams(raw);
+        const state = fields.get('state');
+        const result = assessSauceGuard({
+          scope: cfg.securityScope,
+          audience: 'public',
+          content: fields.get('content'),
+          claims: state ? [{
+            state, evidenceRef: fields.get('evidence_ref') || '', asOf: fields.get('historical_asof') || '',
+          }] : [],
+          flags: {
+            privateImplementation: fields.get('private_impl') === '1',
+            privateMetrics: fields.get('private_metrics') === '1',
+            customerData: fields.get('customer_data') === '1',
+          },
+        });
+        return new Response(sauceGuardPage(session, cfg, result), {
+          headers: { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-store' },
+        });
+      }
+
       if (pathname === '/founder/room' && request.method === 'GET') {
         const s = configured && (await readSession(request, env));
         if (!s) return new Response(null, { status: 302, headers: { Location: '/founder' } });
