@@ -22,8 +22,12 @@ test('Model One desktop and phones preserve distinct branding, layout and closed
       viewportWidth: document.documentElement.clientWidth,
     }));
     expect(sizes.documentWidth).toBeLessThanOrEqual(sizes.viewportWidth + 1);
-    const join = page.getByRole('link', { name: /Join Early Access/ });
-    await expect(join).toHaveAttribute('href', '/checkout');
+    const primary = page.getByRole('link', { name: /Try the Free Checkup/ });
+    await expect(primary).toHaveAttribute('href', '/app.html');
+    await expect(page.locator('.preview-step')).toHaveCount(3);
+    await expect(page.locator('.hero-availability')).toContainText(/free guided checkup/i);
+    const enrollment = page.getByRole('link', { name: /Enrollment Status/ }).first();
+    await expect(enrollment).toHaveAttribute('href', '/checkout');
     const socialLinks = [
       ['Juss & Co. on Instagram', 'https://www.instagram.com/jussnco/'],
       ['Juss Ray on YouTube', 'https://www.youtube.com/channel/UCpEsqUi3uDpiNonJuu1hOKQ'],
@@ -37,7 +41,7 @@ test('Model One desktop and phones preserve distinct branding, layout and closed
       await expect(link).toHaveAttribute('rel', 'noopener noreferrer');
     }
     await page.screenshot({ path: `test-results/model-one-width-${width}.png` });
-    await join.click();
+    await enrollment.click();
     await expect(page).toHaveURL((url) => url.pathname === '/checkout');
     await expect(page.getByRole('heading', { name: 'Enrollment opens at launch' })).toBeVisible();
   }
