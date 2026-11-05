@@ -19,7 +19,7 @@ export const JUSSPAY_TEST_PLANS = Object.freeze({
   one: Object.freeze({
     id: 'one',
     name: 'Protect Model One',
-    product_id: 'protect-one',
+    product_id: 'protect-model-one',
     merchant_id: 'jussco',
     stripe_product_id: 'prod_VZRcwIn9d0aHqX',
     price_id: 'price_1UYIjBRs4gw4sfJHThjLPcpS',
@@ -30,7 +30,7 @@ export const JUSSPAY_TEST_PLANS = Object.freeze({
   two: Object.freeze({
     id: 'two',
     name: 'Protect Model Two',
-    product_id: 'protect-two',
+    product_id: 'protect-model-two',
     merchant_id: 'jussco',
     stripe_product_id: 'prod_VZRc42RZZVrCS9',
     price_id: 'price_1UYIjDRs4gw4sfJHm94eRNsJ',

@@ -1,10 +1,7 @@
-// Juss Protect Me — payments + automatic entitlement.
-// Flow: POST /buy (email, plan) -> Stripe Checkout (hosted by Stripe)
-//   -> Stripe webhook (signature-verified) -> account + entitlement
-//   switched on automatically, Model Two API key issued. No manual step.
-// Prices live in Stripe; the Worker reads Price IDs from env:
-//   STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET,
-//   STRIPE_PRICE_ONE, STRIPE_PRICE_TWO, STRIPE_MODE ('test' | 'live')
+// Juss Protect Me — legacy account UI and product-specific policy controls.
+// New billing and subscription events must be handled by canonical JussPay.
+// Direct Stripe checkout and local webhook fulfillment are permanently closed
+// until a verified per-subject JussPay entitlement bridge replaces them.
 import { addUser, getUserByEmail, listUsers, recordPayment, saveUser } from './store.mjs';
 import { jusspayPlan, validateJusspayActivation } from './jusspay-contract.mjs';
 
@@ -86,107 +83,13 @@ export function createPayments({ store, fetchImpl = fetch }) {
       const url = new URL(request.url);
       const { pathname } = url;
 
-      if (pathname === '/buy' && request.method === 'POST') {
-        if (!env.STRIPE_SECRET_KEY) return new Response('Payments are not configured yet.', { status: 503 });
-        const form = await request.formData();
-        const email = String(form.get('email') || '').trim().toLowerCase();
-        const plan = String(form.get('plan') || '');
-        const price = plan === 'one' ? env.STRIPE_PRICE_ONE : plan === 'two' ? env.STRIPE_PRICE_TWO : null;
-        if (!email || !price) return new Response('Choose a product and enter the email for the account.', { status: 400 });
-        if ((env.STRIPE_MODE || 'test') === 'test') {
-          // Fail at buy time, not after payment: in test mode the
-          // configured price must be the JussPay contract price, or the
-          // webhook would reject the activation later.
-          const contractPlan = jusspayPlan(plan);
-          if (!contractPlan || price !== contractPlan.price_id) {
-            return new Response('This plan is not open yet — its price does not match the JussPay contract.', { status: 503 });
-          }
-        }
-        const origin = url.origin;
-        const body = new URLSearchParams({
-          mode: 'subscription',
-          'line_items[0][price]': price,
-          'line_items[0][quantity]': '1',
-          customer_email: email,
-          'metadata[email]': email,
-          'metadata[plan]': plan,
-          success_url: `${origin}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
-          cancel_url: `${origin}/checkout/cancel`,
+      // Canonical billing and fulfillment belong exclusively to JussPay.
+      // A Stripe secret, even a live one, must never revive these retired paths.
+      if (pathname === '/buy' || pathname === '/webhooks/stripe') {
+        return new Response('Billing is managed by JussPay. Legacy checkout and webhooks are disabled.', {
+          status: 503,
+          headers: { 'Cache-Control': 'no-store', 'X-Content-Type-Options': 'nosniff' },
         });
-        const res = await fetchImpl('https://api.stripe.com/v1/checkout/sessions', {
-          method: 'POST',
-          headers: { Authorization: `Bearer ${env.STRIPE_SECRET_KEY}`, 'Content-Type': 'application/x-www-form-urlencoded' },
-          body,
-        });
-        const session = await res.json();
-        if (!res.ok || !session.url) return new Response('Checkout could not be started. Nothing was charged.', { status: 502 });
-        return new Response(null, { status: 303, headers: { Location: session.url } });
-      }
-
-      if (pathname === '/webhooks/stripe' && request.method === 'POST') {
-        if (!env.STRIPE_WEBHOOK_SECRET) return new Response('Webhook not configured', { status: 503 });
-        const payload = await request.text();
-        const ok = await verifyStripeSignature(payload, request.headers.get('Stripe-Signature'), env.STRIPE_WEBHOOK_SECRET);
-        if (!ok) return new Response('Invalid signature', { status: 400 });
-        const event = JSON.parse(payload);
-        if (await store.get(`event:${event.id}`)) return Response.json({ received: true, duplicate: true });
-        await store.put(`event:${event.id}`, { at: Date.now(), type: event.type });
-
-        if (event.type === 'checkout.session.completed') {
-          const s = event.data.object;
-          // Entitlement activates only through the JussPay contract: the
-          // session shape and a live price readback must both match
-          // JussPay's canonical plan fixtures, or nothing switches on.
-          const verdict = await validateJusspayActivation({ env, session: s, fetchImpl });
-          if (!verdict.ok) return Response.json({ received: true, activation: 'rejected', reason: verdict.reason });
-          const email = (s.metadata?.email || s.customer_email || '').toLowerCase();
-          const plan = verdict.plan.id;
-          if (email) {
-            let user = await getUserByEmail(store, email);
-            const apiKey = plan === 'two' ? `jp2_${randomHex(16)}` : null;
-            if (!user) {
-              user = {
-                id: randomHex(8), email, plan, entitlement: 'active',
-                stripeCustomerId: s.customer || null,
-                apiKeyHash: apiKey ? await sha256Hex(apiKey) : null,
-                apiKeyPrefix: apiKey ? apiKey.slice(0, 8) : null,
-                createdAt: Date.now(), updatedAt: Date.now(),
-              };
-              await addUser(store, user);
-            } else {
-              user.entitlement = 'active';
-              user.plan = plan;
-              user.stripeCustomerId = s.customer || user.stripeCustomerId;
-              if (apiKey) {
-                if (user.apiKeyHash) await store.del(`keyhash:${user.apiKeyHash}`);
-                user.apiKeyHash = await sha256Hex(apiKey); user.apiKeyPrefix = apiKey.slice(0, 8);
-              }
-              user.updatedAt = Date.now();
-              await saveUser(store, user);
-            }
-            if (user.apiKeyHash) await store.put(`keyhash:${user.apiKeyHash}`, user.id);
-            if (apiKey) await store.put(`keyclaim:${user.id}`, await encryptClaim(env, apiKey));
-            if (s.id) await store.put(`session:${s.id}`, user.id);
-            await recordPayment(store, {
-              amount: s.amount_total || 0, currency: s.currency || 'usd',
-              mode: env.STRIPE_MODE || 'test', at: Date.now(), email,
-              plan, validatedBy: 'jusspay-contract',
-            });
-          }
-        }
-        if (event.type === 'customer.subscription.deleted') {
-          const sub = event.data.object;
-          const users = await listUsers(store);
-          const user = users.find((u) => u.stripeCustomerId === sub.customer);
-          if (user) { user.entitlement = 'canceled'; user.updatedAt = Date.now(); await saveUser(store, user); }
-        }
-        if (event.type === 'invoice.payment_failed') {
-          const inv = event.data.object;
-          const users = await listUsers(store);
-          const user = users.find((u) => u.stripeCustomerId === inv.customer);
-          if (user && user.entitlement === 'active') { user.entitlement = 'past_due'; user.updatedAt = Date.now(); await saveUser(store, user); }
-        }
-        return Response.json({ received: true });
       }
 
       const PAGE_STYLE = ':root{--bg:#07040d;--panel:#0e0918;--line:#3b2560;--ink:#f2ecfb;--muted:#b9a8d9;--accent:#b678ff;--gold:#e9c476}body{margin:0;background:radial-gradient(900px 500px at 85% -5%,#2a1650 0,transparent 60%),var(--bg);color:var(--ink);font:16px/1.55 system-ui,sans-serif;min-height:100vh}.wrap{max-width:640px;margin:auto;padding:36px 22px 70px}.brand{color:var(--muted);letter-spacing:.28em;font-size:12px;text-transform:uppercase}.brand b{color:var(--gold);font:600 20px Georgia,serif;letter-spacing:.06em}h1{font:clamp(28px,4.5vw,40px)/1.12 Georgia,serif;margin:14px 0 8px}.card{background:linear-gradient(165deg,var(--panel),#090613);border:1px solid var(--line);border-radius:18px;padding:24px;margin-top:20px}.sub{color:var(--muted)}label{display:block;margin:14px 0 6px;color:var(--muted);font-size:13px;letter-spacing:.12em;text-transform:uppercase}input,select,textarea{width:100%;padding:12px 14px;border-radius:12px;border:1px solid var(--line);background:#0a0614;color:var(--ink);font-size:16px}textarea{resize:vertical}input[type=radio]{width:auto;margin-right:8px}button{margin-top:20px;padding:13px 26px;border:0;border-radius:999px;background:linear-gradient(180deg,#e9c6ff,var(--accent));color:#1d0f33;font-weight:700;font-size:16px;cursor:pointer}.key{font:600 17px ui-monospace,monospace;background:#0a0614;border:1px dashed var(--gold);border-radius:12px;padding:14px;word-break:break-all;color:var(--gold)}.warn{background:#3a2c0f;border:1px solid #6b5a2a;color:#ffe1a3;border-radius:12px;padding:12px 16px;margin-top:16px}code{color:var(--gold)}';
@@ -240,31 +143,12 @@ export function createPayments({ store, fetchImpl = fetch }) {
 
 
       if (pathname === '/checkout' && request.method === 'GET') {
-        const plan = url.searchParams.get('plan') === 'one' ? 'one' : 'two';
-        if (!env.STRIPE_SECRET_KEY) return html(pageShell('Checkout', `<div class="card"><h1>Enrollment opens at launch</h1><p class="sub">Checkout is built and tested, and it switches on with the launch — nothing to pay today, and this page collects nothing.</p></div>`));
-        return html(pageShell('Checkout', `<div class="card"><h1>Get protected</h1><p class="sub">One subscription. Your account is created and your protection switches on automatically the moment payment completes — no setup steps after.</p>${env.STRIPE_MODE === 'test' ? '<div class="warn">TEST MODE — practice money only, no real charge.</div>' : ''}<form method="post" action="/buy"><label for="email">Email for your account</label><input id="email" name="email" type="email" required><label for="plan">Product</label><select id="plan" name="plan"><option value="two" ${plan === 'two' ? 'selected' : ''}>Juss Protect Me 2 — AI agent security</option><option value="one" ${plan === 'one' ? 'selected' : ''}>Juss Protect Me — people, devices, everyday safety</option></select><button type="submit">Continue to secure payment</button></form><p class="sub" style="margin-top:14px">Payment is handled by Stripe. Juss &amp; Co. never sees your card.</p></div>`));
+        return html(pageShell('Checkout', `<div class="card"><h1>Enrollment opens at launch</h1><p class="sub">JussPay is the billing authority. Paid enrollment is not active yet, and this page collects no payment or sign-up details.</p></div>`));
       }
 
       if (pathname === '/checkout/success' && request.method === 'GET') {
-        const sid = url.searchParams.get('session_id') || '';
-        const userId = sid ? await store.get(`session:${sid}`) : null;
-        const user = userId ? await store.get(`user:${userId}`) : null;
-        if (!user) return html(pageShell('Switching on', `<div class="card"><h1>Payment received — switching you on</h1><p class="sub">Your account is being created automatically. Refresh this page in a few seconds; if it does not appear, keep your Stripe receipt — it is the proof of this payment.</p></div>`));
-        const token = await accountToken(env, user.id);
-        let keyBlock = '';
-        if (user.plan === 'two') {
-          const claim = await store.get(`keyclaim:${user.id}`);
-          if (claim) {
-            const raw = await decryptClaim(env, claim);
-            await store.put(`keyclaim:${user.id}`, null);
-            keyBlock = `<div class="warn">Save this key now — it is shown once.</div><p style="margin-top:12px">Your gateway key:</p><div class="key">${raw}</div><p class="sub" style="margin-top:10px">Your agents send it as <code>Authorization: Bearer &lt;key&gt;</code> to the gateway check. Lost it? Rotate a fresh one from your account page — the old one stops working.</p>`;
-          } else {
-            keyBlock = `<p class="sub">Your gateway key was already claimed. If you lost it, rotate a fresh one from your <a href="/account?token=${encodeURIComponent(token)}">account page</a> — the old one stops working.</p>`;
-          }
-        } else {
-          keyBlock = `<p class="sub">Your checkup app: <a href="/app.html">open it here</a> and choose "Install this app" (or Add to Home Screen) — that is the whole install. Your answers stay on your device.</p>`;
-        }
-        return html(pageShell('You are protected', `<div class="card"><h1>You&rsquo;re in — protection is ON</h1><p class="sub">Account <strong>${user.email}</strong> · Juss Protect Me ${user.plan === 'one' ? 'One' : 'Two'} · entitlement <strong>ACTIVE</strong>, switched on automatically by your payment${env.STRIPE_MODE === 'test' ? ' (TEST MODE — practice payment)' : ''}.</p>${keyBlock}<p style="margin-top:16px"><a href="/account?token=${encodeURIComponent(token)}">Open your account page</a></p></div>`));
+        // A redirect is not proof of payment, membership, or device protection.
+        return html(pageShell('Verification pending', `<div class="card"><h1>Account verification required</h1><p class="sub">Only JussPay can verify your billing status. This return page cannot activate protection or issue an agent key.</p><p><a href="/checkout">Return to enrollment status</a></p></div>`));
       }
 
       if (pathname === '/checkout/cancel' && request.method === 'GET') {
