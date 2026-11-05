@@ -73,113 +73,82 @@ test('activation verdict: unknown plan and live mode fail closed', async () => {
   assert.equal(jusspayPlan('gold'), null);
 });
 
-// ---- webhook integration through the real payments module ----
+// ---- canonical JussPay owns billing. Legacy product Stripe paths fail closed. ----
 
-function signedPost(event, secret = WHSEC) {
-  const body = JSON.stringify(event);
-  const t = Math.floor(Date.now() / 1000);
-  const v1 = createHmac('sha256', secret).update(`${t}.${body}`).digest('hex');
-  return new Request('https://protect.example/webhooks/stripe', {
-    method: 'POST', headers: { 'Stripe-Signature': `t=${t},v1=${v1}` }, body,
-  });
-}
+test('product fixtures use canonical JussPay product identifiers', () => {
+  assert.equal(ONE.product_id, 'protect-model-one');
+  assert.equal(TWO.product_id, 'protect-model-two');
+});
 
-function paymentsHarness(pricePatch) {
+test('retired purchase route refuses payment even when configured with live Stripe credentials', async () => {
+  let providerCalls = 0;
   const store = createStore({});
-  const fetchImpl = async (url) => {
-    const id = String(url).split('/prices/')[1];
-    const plan = id === ONE.price_id ? ONE : TWO;
-    return { ok: true, status: 200, json: async () => priceFixture(plan, pricePatch) };
-  };
-  const payments = createPayments({ store, fetchImpl });
-  const env = {
-    STRIPE_WEBHOOK_SECRET: WHSEC, STRIPE_SECRET_KEY: API_KEY,
-    STRIPE_MODE: 'test', SESSION_SECRET: 'fixture-session',
-  };
-  return { store, payments, env };
-}
-
-let seq = 0;
-const completedEvent = (plan, patch) => ({
-  id: `evt_${++seq}`, type: 'checkout.session.completed',
-  data: { object: sessionFixture(plan, patch) },
-});
-
-test('signed completion activates entitlement through the contract (plan two)', async () => {
-  const { store, payments, env } = paymentsHarness();
-  const res = await payments.fetch(signedPost(completedEvent(TWO)), env);
-  assert.equal(res.status, 200);
-  const user = await getUserByEmail(store, 'buyer@example.com');
-  assert.ok(user);
-  assert.equal(user.entitlement, 'active');
-  assert.equal(user.plan, 'two');
-  assert.ok(user.apiKeyHash);
-  const ledger = await store.get('ledger');
-  assert.equal(ledger.payments.length, 1);
-  assert.equal(ledger.payments[0].validatedBy, 'jusspay-contract');
-  assert.equal(ledger.payments[0].plan, 'two');
-});
-
-test('amount drift rejects activation and creates no account', async () => {
-  const { store, payments, env } = paymentsHarness();
-  const res = await payments.fetch(signedPost(completedEvent(TWO, { amount_total: 1 })), env);
-  const body = await res.json();
-  assert.equal(body.activation, 'rejected');
-  assert.equal(body.reason, 'session_does_not_match_jusspay_contract');
+  const payments = createPayments({ store, fetchImpl: async () => { providerCalls++; throw Error('Provider must not be called'); } });
+  for (const mode of ['test', 'live']) {
+    const form = new URLSearchParams({ email: 'buyer@example.com', plan: 'two' });
+    const response = await payments.fetch(new Request('https://protect.example/buy', { method: 'POST', body: form }), {
+      STRIPE_MODE: mode, STRIPE_SECRET_KEY: 'sk_live_dummy', STRIPE_PRICE_TWO: TWO.price_id,
+      STRIPE_WEBHOOK_SECRET: WHSEC,
+    });
+    assert.equal(response.status, 503);
+    assert.match(await response.text(), /JussPay/);
+  }
+  assert.equal(providerCalls, 0);
   assert.equal(await getUserByEmail(store, 'buyer@example.com'), null);
 });
 
-test('provider price drift rejects activation and creates no account', async () => {
-  const { store, payments, env } = paymentsHarness({ unit_amount: 5 });
-  const res = await payments.fetch(signedPost(completedEvent(TWO)), env);
-  const body = await res.json();
-  assert.equal(body.activation, 'rejected');
-  assert.equal(body.reason, 'price_does_not_match_jusspay_contract');
-  assert.equal(await getUserByEmail(store, 'buyer@example.com'), null);
-});
-
-test('plan one activates without a gateway key', async () => {
-  const { store, payments, env } = paymentsHarness();
-  const res = await payments.fetch(signedPost(completedEvent(ONE)), env);
-  assert.equal(res.status, 200);
-  const user = await getUserByEmail(store, 'buyer@example.com');
-  assert.equal(user.entitlement, 'active');
-  assert.equal(user.plan, 'one');
-  assert.equal(user.apiKeyHash, null);
-});
-
-test('revocation still works without contract validation', async () => {
-  const { store, payments, env } = paymentsHarness();
-  await payments.fetch(signedPost(completedEvent(TWO)), env);
-  const del = {
-    id: `evt_${++seq}`, type: 'customer.subscription.deleted',
-    data: { object: { id: 'sub_fixture', customer: 'cus_fixture' } },
-  };
-  const res = await payments.fetch(signedPost(del), env);
-  assert.equal(res.status, 200);
-  const user = await getUserByEmail(store, 'buyer@example.com');
-  assert.equal(user.entitlement, 'canceled');
-});
-
-test('buy fails fast when the configured price is off-contract (test mode)', async () => {
-  const { payments, env } = paymentsHarness();
-  const form = new URLSearchParams({ email: 'buyer@example.com', plan: 'two' });
-  const bad = await payments.fetch(new Request('https://protect.example/buy', { method: 'POST', body: form }), {
-    ...env, STRIPE_PRICE_TWO: 'price_some_other_price',
-  });
-  assert.equal(bad.status, 503);
-});
-
-test('buy passes with the contract price and in live mode', async () => {
+test('retired webhook does not create entitlement or issue gateway key from a signed event', async () => {
+  let providerCalls = 0;
   const store = createStore({});
-  const fetchImpl = async () => ({ ok: true, status: 200, json: async () => ({ url: 'https://checkout.example/session' }) });
-  const payments = createPayments({ store, fetchImpl });
-  const form = () => new URLSearchParams({ email: 'buyer@example.com', plan: 'two' });
-  const env = { STRIPE_SECRET_KEY: API_KEY, STRIPE_MODE: 'test', STRIPE_PRICE_TWO: TWO.price_id };
-  const res = await payments.fetch(new Request('https://protect.example/buy', { method: 'POST', body: form() }), env);
-  assert.equal(res.status, 303);
-  const live = await payments.fetch(new Request('https://protect.example/buy', { method: 'POST', body: form() }), {
-    ...env, STRIPE_MODE: 'live', STRIPE_PRICE_TWO: 'price_live_future',
-  });
-  assert.equal(live.status, 303);
+  const payments = createPayments({ store, fetchImpl: async () => { providerCalls++; throw Error('Provider must not be called'); } });
+  const plan = TWO;
+  const body = JSON.stringify({ id: 'evt_synthetic_test', type: 'checkout.session.completed',
+    data: { object: { id: 'cs_test_fake', mode: 'subscription', payment_status: 'paid',
+      amount_total: plan.amount, currency: plan.currency, customer: 'cus_fake',
+      subscription: 'sub_fake', metadata: { email: 'buyer@example.com', plan: plan.id } } } });
+  const t = Math.floor(Date.now()/1000);
+  const signature = createHmac('sha256', WHSEC).update(t + '.' + body).digest('hex');
+  const response = await payments.fetch(new Request('https://protect.example/webhooks/stripe', {
+    method: 'POST', headers: { 'Stripe-Signature': 't=' + t + ',v1=' + signature }, body,
+  }), { STRIPE_SECRET_KEY: API_KEY, STRIPE_WEBHOOK_SECRET: WHSEC, STRIPE_MODE: 'test' });
+  assert.equal(response.status, 503);
+  assert.equal(providerCalls, 0);
+  assert.equal(await getUserByEmail(store, 'buyer@example.com'), null);
+  assert.equal(await store.get('ledger'), null);
+  assert.equal(await store.get('index:users'), null);
+});
+
+test('checkout and success return stay closed even with payment secrets configured', async () => {
+  const payments = createPayments({ store: createStore({}), fetchImpl: async () => { throw Error('Provider must not be called'); } });
+  const env = { STRIPE_SECRET_KEY: 'sk_live_dummy', STRIPE_MODE: 'live', STRIPE_PRICE_TWO: TWO.price_id, SESSION_SECRET: 'dummy' };
+  const checkout = await payments.fetch(new Request('https://protect.example/checkout'), env);
+  assert.equal(checkout.status, 200);
+  assert.match(await checkout.text(), /Enrollment opens at launch/);
+  const success = await payments.fetch(new Request('https://protect.example/checkout/success?session_id=cs_fake'), env);
+  assert.equal(success.status, 200);
+  const html = await success.text();
+  assert.match(html, /Account verification required/);
+  assert.doesNotMatch(html, /protection is ON/i);
+  assert.doesNotMatch(html, /jp2_[A-Za-z0-9]/);
+});
+
+
+test('GEO and AEO answers are visible and match homepage structured data', async () => {
+  const { readFileSync } = await import('node:fs');
+  const html = readFileSync(new URL('../public/index.html', import.meta.url), 'utf8');
+  assert.ok(html.includes('<meta name="description"'));
+  assert.ok(html.includes('<link rel="canonical"'));
+  assert.ok(html.includes('<section id="questions"'));
+  const match = html.match(/<script type="application\/ld\+json">([^<]+)<\/script>/);
+  assert.ok(match, 'structured data available');
+  const data = JSON.parse(match[1]);
+  const faq = data.find(x => x['@type'] === 'FAQPage');
+  const page = data.find(x => x['@type'] === 'WebPage');
+  assert.equal(page.url, "https://protect.jussco.company/");
+  assert.equal(faq.mainEntity.length, 3);
+  for (const answer of faq.mainEntity) {
+    assert.ok(html.includes(answer.name));
+    assert.ok(html.includes(answer.acceptedAnswer.text));
+  }
+  assert.ok(html.includes('Paid membership enrollment is not open yet'));
 });
