@@ -8,6 +8,7 @@ export function createModelOneRoom(opts = {}) {
   return createFounderRoom({
     statsProvider: opts.statsProvider || null,
     membersProvider: opts.membersProvider || null,
+    securityScope: 'personal',
     brand: {
       bg: '#0a0703',
       glow: '#3a2a10',
@@ -21,8 +22,8 @@ export function createModelOneRoom(opts = {}) {
     siteRows: [
       {
         name: 'Edge protection — Model One',
-        state: 'NOT BUILT',
-        note: 'Model One serves static assets only today — no Worker, no Shield. This room\u2019s Worker is its first server layer, added at deploy.',
+        state: 'SOURCE IMPLEMENTED',
+        note: 'Worker and founder session routes exist in source. Live protection needs independent Cloudflare runtime proof.',
       },
       {
         name: 'Edge Shield — Model Two',
