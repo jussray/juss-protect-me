@@ -1,7 +1,7 @@
 name: Model One CI
 on:
   push:
-    branches: [main]
+    branches: [main, 'security/**']
   pull_request:
   workflow_dispatch:
 permissions:
