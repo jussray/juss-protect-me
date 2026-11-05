@@ -9,10 +9,11 @@
     "./hallway": "./src/hallway.mjs",
     "./authority": "./src/authority.mjs",
     "./counter-pressure": "./src/counter-pressure.mjs",
-    "./device-evidence": "./src/device-evidence.mjs"
+    "./device-evidence": "./src/device-evidence.mjs",
+    "./sauce-guard": "./security/sauce-guard.mjs"
   },
   "scripts": {
-    "test": "node --test test/model-one.test.mjs test/hallway.test.mjs test/authority.test.mjs test/counter-pressure.test.mjs test/device-evidence.test.mjs test/muse-provider.test.mjs test/jusspay-contract.test.mjs",
+    "test": "node --test test/model-one.test.mjs security/sauce-guard.test.mjs platform/founder-room-sauce-guard.test.mjs test/hallway.test.mjs test/authority.test.mjs test/counter-pressure.test.mjs test/device-evidence.test.mjs test/muse-provider.test.mjs test/jusspay-contract.test.mjs",
     "test:hallway": "node --test test/hallway.test.mjs",
     "test:authority": "node --test test/authority.test.mjs",
     "test:pressure": "node --test test/counter-pressure.test.mjs",
