@@ -73,5 +73,5 @@ test('founder room exposes the private security console entry point', async () =
   const cookie = await founderCookie();
   const res = await app.fetch(req('/founder/room', { headers: { Cookie: cookie } }), env);
   assert.equal(res.status, 200);
-  assert.match(await res.text(), /href="/founder/sauce-guard"/);
+  assert.ok((await res.text()).includes('href="/founder/sauce-guard"'));
 });
