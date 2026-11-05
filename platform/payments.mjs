@@ -6,6 +6,7 @@
 //   STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET,
 //   STRIPE_PRICE_ONE, STRIPE_PRICE_TWO, STRIPE_MODE ('test' | 'live')
 import { addUser, getUserByEmail, listUsers, recordPayment, saveUser } from './store.mjs';
+import { jusspayPlan, validateJusspayActivation } from './jusspay-contract.mjs';
 
 const enc = new TextEncoder();
 function hex(bytes) { return [...new Uint8Array(bytes)].map((b) => b.toString(16).padStart(2, '0')).join(''); }
@@ -92,6 +93,15 @@ export function createPayments({ store, fetchImpl = fetch }) {
         const plan = String(form.get('plan') || '');
         const price = plan === 'one' ? env.STRIPE_PRICE_ONE : plan === 'two' ? env.STRIPE_PRICE_TWO : null;
         if (!email || !price) return new Response('Choose a product and enter the email for the account.', { status: 400 });
+        if ((env.STRIPE_MODE || 'test') === 'test') {
+          // Fail at buy time, not after payment: in test mode the
+          // configured price must be the JussPay contract price, or the
+          // webhook would reject the activation later.
+          const contractPlan = jusspayPlan(plan);
+          if (!contractPlan || price !== contractPlan.price_id) {
+            return new Response('This plan is not open yet — its price does not match the JussPay contract.', { status: 503 });
+          }
+        }
         const origin = url.origin;
         const body = new URLSearchParams({
           mode: 'subscription',
@@ -124,8 +134,13 @@ export function createPayments({ store, fetchImpl = fetch }) {
 
         if (event.type === 'checkout.session.completed') {
           const s = event.data.object;
+          // Entitlement activates only through the JussPay contract: the
+          // session shape and a live price readback must both match
+          // JussPay's canonical plan fixtures, or nothing switches on.
+          const verdict = await validateJusspayActivation({ env, session: s, fetchImpl });
+          if (!verdict.ok) return Response.json({ received: true, activation: 'rejected', reason: verdict.reason });
           const email = (s.metadata?.email || s.customer_email || '').toLowerCase();
-          const plan = s.metadata?.plan || 'two';
+          const plan = verdict.plan.id;
           if (email) {
             let user = await getUserByEmail(store, email);
             const apiKey = plan === 'two' ? `jp2_${randomHex(16)}` : null;
@@ -155,6 +170,7 @@ export function createPayments({ store, fetchImpl = fetch }) {
             await recordPayment(store, {
               amount: s.amount_total || 0, currency: s.currency || 'usd',
               mode: env.STRIPE_MODE || 'test', at: Date.now(), email,
+              plan, validatedBy: 'jusspay-contract',
             });
           }
         }
