@@ -129,6 +129,15 @@ h1{font:clamp(44px,5.3vw,77px)/1.04 'PlayfairDisplay',Georgia,'Times New Roman',
   .feature-details p{font-size:12px}
   .mission h2{letter-spacing:.12em}
 }
+
+/* First-paint legibility and phone framing verified against Playwright screenshots. */
+.hero-copy > *, .hero-pill {animation:none!important}
+@media(max-width:530px){
+ .hero-portrait{height:clamp(188px,54vw,300px)}
+ .product-mark{margin-bottom:18px}
+ .hero h1{margin-bottom:10px}
+ .hero-lead{margin-bottom:17px}
+}
 </style></head>
 <body class="gold">
 <header class="site-top" id="home"><div class="top-inner">
