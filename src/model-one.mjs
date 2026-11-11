@@ -154,13 +154,23 @@ export function createEvidenceReceipt({ id, event, identity, evidenceRefs = [], 
 }
 
 export function verifyEvidenceReceipt(receipt, secret = null) {
-  if (!receipt?.receipt || !receipt?.receiptKind) return false;
-  if (receipt.receiptKind === 'hmac-sha256' && !secret) return false;
+  if (!receipt || typeof receipt !== 'object' || Array.isArray(receipt)) return false;
+  const signed = receipt.receiptKind === 'hmac-sha256';
+  if (!signed && receipt.receiptKind !== 'sha256-unauthenticated') return false;
+  if (signed && !secret) return false;
+  if (receipt.schema !== 'juss-protect-me/model-one-evidence@v1') return false;
+  if (receipt.authority?.level !== 'evidence_only' || receipt.authority?.canAuthorize !== false) return false;
+  if (!Array.isArray(receipt.evidenceRefs)
+      || !receipt.evidenceRefs.every(ref => typeof ref === 'string' && ref.trim())) return false;
+  const expectedState = receipt.evidenceRefs.length === 0
+    ? 'unknown' : signed ? 'verified' : 'inferred';
+  if (receipt.state !== expectedState) return false;
+  if (typeof receipt.receipt !== 'string' || !/^[0-9a-f]{64}$/i.test(receipt.receipt)) return false;
   const { receipt: supplied, ...core } = receipt;
   const expected = digest(receipt.receiptKind, canonical(core), secret);
-  const a = Buffer.from(String(supplied), 'hex');
+  const a = Buffer.from(supplied, 'hex');
   const b = Buffer.from(expected, 'hex');
-  return a.length === b.length && a.length > 0 && timingSafeEqual(a, b);
+  return a.length === b.length && timingSafeEqual(a, b);
 }
 
 export function evaluateReceiptStaleness(receipt, currentIdentity) {
