@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { createHash } from 'node:crypto';
 import test from 'node:test';
 
 import {
@@ -119,4 +120,68 @@ test('unsupported destructive actions cannot be authorized', () => {
     minConfidence: 0,
   });
   assert.equal(result.authorized, false);
+});
+
+function canonicalForForgery(value) {
+  if (Array.isArray(value)) return value.map(canonicalForForgery);
+  if (value && typeof value === 'object') {
+    return Object.fromEntries(Object.keys(value).sort().map(key => [key, canonicalForForgery(value[key])]));
+  }
+  return value;
+}
+
+function forgeUnsignedReceipt(original, changes) {
+  const { receipt: ignored, ...core } = { ...original, ...changes };
+  return {
+    ...core,
+    receipt: createHash('sha256').update(JSON.stringify(canonicalForForgery(core))).digest('hex'),
+  };
+}
+
+test('unsigned receipt cannot be rehashed into verified evidence', () => {
+  const original = createEvidenceReceipt({
+    id: 'PM1-006', event, identity, evidenceRefs: ['sensor://browser/verdict/128'],
+    observedAt: '2026-10-05T18:00:00.000Z',
+  });
+  assert.equal(verifyEvidenceReceipt(original), true);
+  const forged = forgeUnsignedReceipt(original, { state: 'verified' });
+  assert.equal(verifyEvidenceReceipt(forged), false);
+});
+
+test('unsigned receipt cannot grant itself action authority', () => {
+  const original = createEvidenceReceipt({
+    id: 'PM1-007', event, identity, evidenceRefs: ['sensor://browser/verdict/129'],
+    observedAt: '2026-10-05T18:00:00.000Z',
+  });
+  const forged = forgeUnsignedReceipt(original, {
+    authority: { level: 'evidence_only', canAuthorize: true },
+  });
+  assert.equal(verifyEvidenceReceipt(forged), false);
+});
+
+test('unsupported receipt algorithm cannot fall back to unsigned sha256', () => {
+  const original = createEvidenceReceipt({
+    id: 'PM1-008', event, identity, evidenceRefs: ['sensor://browser/verdict/130'],
+    observedAt: '2026-10-05T18:00:00.000Z',
+  });
+  const forged = forgeUnsignedReceipt(original, { receiptKind: 'untrusted-algorithm' });
+  assert.equal(verifyEvidenceReceipt(forged), false);
+});
+
+test('signed receipt rejects trailing nonhex characters instead of accepting a truncated digest', () => {
+  const receipt = createEvidenceReceipt({
+    id: 'PM1-009', event, identity, evidenceRefs: ['sensor://browser/verdict/131'],
+    observedAt: '2026-10-05T18:00:00.000Z', secret,
+  });
+  assert.equal(verifyEvidenceReceipt(receipt, secret), true);
+  assert.equal(verifyEvidenceReceipt({ ...receipt, receipt: receipt.receipt + 'zz' }, secret), false);
+});
+
+test('signed receipt with no evidence stays unknown, valid and non-authorizing', () => {
+  const receipt = createEvidenceReceipt({
+    id: 'PM1-010', event, identity, observedAt: '2026-10-05T18:00:00.000Z', secret,
+  });
+  assert.equal(receipt.state, 'unknown');
+  assert.equal(receipt.authority.canAuthorize, false);
+  assert.equal(verifyEvidenceReceipt(receipt, secret), true);
 });
