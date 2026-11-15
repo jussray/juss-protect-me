@@ -114,6 +114,54 @@ export function authorizeRecommendedAction(recommendation, policy = {}) {
   if (recommendation.action === 'manual_review' || recommendation.action === 'notify') {
     return Object.freeze({ authorized: true, reason: 'non-destructive-user-safety-action' });
   }
+  // Medusa principle: a recommendation and a confidence score are evidence,
+  // not permission. Automated effects require a signed, current, bound receipt
+  // AND an independent member policy. No receipt means fail closed.
+  const receipt = policy.evidenceReceipt;
+  const secret = policy.evidenceSecret;
+  if (!receipt || receipt.state !== 'verified' || receipt.receiptKind !== 'hmac-sha256' ||
+      !Array.isArray(receipt.evidenceRefs) || receipt.evidenceRefs.length === 0 ||
+      typeof secret !== 'string' || secret.length < 32) {
+    return Object.freeze({ authorized: false, reason: 'signed_evidence_required' });
+  }
+  let evidenceValid = false;
+  try {
+    evidenceValid = verifyEvidenceReceipt(receipt, secret);
+  } catch {
+    evidenceValid = false;
+  }
+  if (!evidenceValid) {
+    return Object.freeze({ authorized: false, reason: 'signed_evidence_invalid' });
+  }
+  let current;
+  try {
+    if (!FULL_SHA.test(String(receipt.identity?.sourceSha ?? '')) ||
+        !FULL_SHA.test(String(policy.currentIdentity?.sourceSha ?? ''))) {
+      throw new Error('unbound code identity');
+    }
+    current = evaluateReceiptStaleness(receipt, policy.currentIdentity);
+  } catch {
+    return Object.freeze({ authorized: false, reason: 'current_identity_required' });
+  }
+  if (current.state !== 'verified') {
+    return Object.freeze({ authorized: false, reason: 'evidence_stale' });
+  }
+  const ageMs = Date.now() - Date.parse(receipt.observedAt);
+  if (!Number.isFinite(ageMs) || ageMs < -30000 || ageMs > 300000) {
+    return Object.freeze({ authorized: false, reason: 'evidence_outside_freshness_window' });
+  }
+  let expected;
+  try {
+    expected = evaluateThreat(receipt.event);
+  } catch {
+    return Object.freeze({ authorized: false, reason: 'evidence_threat_invalid' });
+  }
+  if (expected.action !== recommendation.action ||
+      expected.reason !== recommendation.reason ||
+      expected.confidence !== recommendation.confidence) {
+    return Object.freeze({ authorized: false, reason: 'recommendation_not_bound_to_evidence' });
+  }
+
   const minConfidence = Number.isFinite(policy.minConfidence) ? policy.minConfidence : 0.9;
   const allowed = Array.isArray(policy.autoActions) ? new Set(policy.autoActions) : new Set();
   if (recommendation.confidence < minConfidence) {
