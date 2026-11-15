@@ -9,7 +9,7 @@ import { assertThreatEvent, evaluateThreat } from './model-one.mjs';
 
 const HEX64 = /^[0-9a-f]{64}$/;
 const MAX_EXPORT_BYTES = 256 * 1024;
-const ACCEPTED_GATES = new Set(['Proceed', 'Proceed with named changes', 'Pass 1 only (advisory)']);
+const ACCEPTED_GATES = new Set(['Proceed']);
 
 function hold(reason) {
   return Object.freeze({
