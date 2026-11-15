@@ -5,7 +5,7 @@
 // This module deliberately never uploads customer material, runs a detector,
 // opens files, or invokes containment.
 import { createHash } from 'node:crypto';
-import { assertThreatEvent, evaluateThreat } from './model-one.mjs';
+import { assertThreatEvent, evaluateThreat, authorizeRecommendedAction } from './model-one.mjs';
 
 const HEX64 = /^[0-9a-f]{64}$/;
 const MAX_EXPORT_BYTES = 256 * 1024;
@@ -78,5 +78,36 @@ export function evaluateMedusaBoundThreat({
     canAuthorize: false,
     effectExecuted: false,
     nextGate: 'separate_privacy_and_authority_review',
+  });
+}
+
+
+/**
+ * Real Model One decision composition: Medusa may VETO an action, never grant
+ * one. Only the independent signed-receipt + member-policy authority kernel
+ * can return authorized=true. This function performs no action itself.
+ */
+export function authorizeWithMedusaReview({ threat, rawExport, expectedSha256,
+  expectedTarget, policy = {} } = {}) {
+  const reviewed = evaluateMedusaBoundThreat({
+    threat, rawExport, expectedSha256, expectedTarget,
+  });
+  if (reviewed.state !== 'REVIEWED_EVIDENCE') {
+    return Object.freeze({
+      authorized: false,
+      reason: 'medusa_review_hold',
+      medusaReason: reviewed.reason,
+      canExecute: false,
+      effectExecuted: false,
+    });
+  }
+  const policyGate = authorizeRecommendedAction(reviewed.recommendation, policy);
+  return Object.freeze({
+    ...policyGate,
+    medusaReviewState: reviewed.state,
+    medusaReportSha256: reviewed.reportSha256,
+    medusaConferredAuthority: false,
+    canExecute: false,
+    effectExecuted: false,
   });
 }
