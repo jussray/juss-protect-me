@@ -1,7 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
-import { evaluateMedusaBoundThreat } from '../src/medusa-guard.mjs';
+import { evaluateMedusaBoundThreat, authorizeWithMedusaReview } from '../src/medusa-guard.mjs';
+import { createEvidenceReceipt } from '../src/model-one.mjs';
 
 const threat = { kind: 'phishing', severity: 'high', confidence: 0.96,
   summary: 'Synthetic suspicious link report, not a live verdict.' };
@@ -68,4 +69,38 @@ test('oversize export and raw sensitive threat fields are rejected', () => {
     expectedSha256: '0'.repeat(64),
     expectedTarget: target,
   }), /raw sensitive field/);
+});
+
+
+test('integrated Medusa veto and independent evidence/policy must both pass', () => {
+  const rawExport = JSON.stringify(exportDoc);
+  const expectedSha256 = createHash('sha256').update(rawExport).digest('hex');
+  const secret = 'synthetic-evidence-secret-32-chars-only';
+  const identity = { modelVersion: 'model-one-test', policyVersion: 'policy-test',
+    deviceScope: 'device:test-only', sourceSha: 'a'.repeat(40),
+    sensorVersions: { browser: 'synthetic-v1' } };
+  const evidenceReceipt = createEvidenceReceipt({
+    id: 'MEDUSA-MODEL-ONE-1', event: threat, identity,
+    evidenceRefs: ['synthetic://device-evidence/1'],
+    observedAt: new Date().toISOString(), secret,
+  });
+  const args = {
+    threat, rawExport, expectedSha256, expectedTarget: target,
+    policy: { autoActions: ['block_navigation'], minConfidence: 0.95,
+      evidenceReceipt, evidenceSecret: secret, currentIdentity: identity },
+  };
+  const approved = authorizeWithMedusaReview(args);
+  assert.equal(approved.authorized, true, 'policy may authorize after both evidence checks');
+  assert.equal(approved.medusaConferredAuthority, false);
+  assert.equal(approved.canExecute, false, 'decision is not an actuator');
+
+  assert.equal(authorizeWithMedusaReview({
+    ...args, policy: { autoActions: ['block_navigation'], minConfidence: 0.95 },
+  }).authorized, false, 'Medusa is not a replacement for signed evidence');
+  assert.equal(authorizeWithMedusaReview({
+    ...args, expectedTarget: 'wrong-target',
+  }).reason, 'medusa_review_hold', 'Medusa may veto a fully permitted action');
+  assert.equal(authorizeWithMedusaReview({
+    ...args, policy: { ...args.policy, autoActions: [] },
+  }).authorized, false, 'policy can veto a reviewed recommendation');
 });
