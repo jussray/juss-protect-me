@@ -89,7 +89,50 @@ test('high confidence phishing recommends blocking but separate policy decides a
   assert.equal(authorizeRecommendedAction(recommendation, {
     autoActions: ['block_navigation'],
     minConfidence: 0.95,
+  }).authorized, false, 'policy confidence alone is not action authority');
+  const evidenceReceipt = createEvidenceReceipt({
+    id: 'PM1-AUTH',
+    event,
+    identity,
+    evidenceRefs: ['sensor://browser/verdict/synthetic-authorized'],
+    observedAt: new Date().toISOString(),
+    secret,
+  });
+  assert.equal(authorizeRecommendedAction(recommendation, {
+    autoActions: ['block_navigation'],
+    minConfidence: 0.95,
+    evidenceReceipt,
+    evidenceSecret: secret,
+    currentIdentity: identity,
   }).authorized, true);
+  assert.equal(authorizeRecommendedAction(recommendation, {
+    autoActions: ['block_navigation'],
+    minConfidence: 0.95,
+    evidenceReceipt: { ...evidenceReceipt, state: 'inferred' },
+    evidenceSecret: secret,
+    currentIdentity: identity,
+  }).authorized, false, 'forged evidence state must block');
+  assert.equal(authorizeRecommendedAction(recommendation, {
+    autoActions: ['block_navigation'],
+    minConfidence: 0.95,
+    evidenceReceipt,
+    evidenceSecret: secret,
+    currentIdentity: { ...identity, sourceSha: 'b'.repeat(40) },
+  }).reason, 'evidence_stale');
+  assert.equal(authorizeRecommendedAction(recommendation, {
+    autoActions: ['block_navigation'],
+    minConfidence: 0.95,
+    evidenceReceipt,
+    evidenceSecret: secret,
+    currentIdentity: identity,
+  }).authorized, true);
+  const unrelated = { action: 'quarantine_file', confidence: 0.96, reason: 'malware-execution-risk' };
+  assert.equal(authorizeRecommendedAction(unrelated, {
+    autoActions: ['quarantine_file'],
+    evidenceReceipt,
+    evidenceSecret: secret,
+    currentIdentity: identity,
+  }).reason, 'recommendation_not_bound_to_evidence');
 });
 
 test('uncertain attribution falls back to manual review', () => {
