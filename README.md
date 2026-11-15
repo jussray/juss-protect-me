@@ -79,3 +79,31 @@ They may exchange evidence through a documented contract, but they do not share 
 ## Status
 
 `KERNEL_IMPLEMENTED / DEVICE_EVIDENCE_CONTRACT_IMPLEMENTED / LIVE_SENSOR_INTEGRATION_NOT_YET_PROVEN / PRODUCT_NOT_YET_LAB_VALIDATED`
+
+
+## Medusa decision integrity integration (feature branch)
+
+The Model One threat kernel now fails closed on *automated* protection
+recommendations until a fresh HMAC-signed evidence receipt, current model
+and sensor identity, bound threat recommendation, and independent member
+policy all agree. Missing, stale, altered, unbound, or old evidence is
+rejected. Non-destructive notifications and human review remain available.
+
+The Medusa A–D review adapter lives at src/medusa-guard.mjs. It accepts
+an independently pinned SHA-256 digest of the offline protected assessment
+export and checks scope, checker verdict, and evidence-only authority
+semantics. Reviews with Hold, Stop, BLOCKED, named changes still open, or
+routine-only coverage veto automated decisions. An admissible review is
+advisory, not approval. The composed authorizeWithMedusaReview function
+requires BOTH this Medusa review and the independent signed-evidence and
+member-policy decision. It never performs the action.
+
+The pinned digest must come from an independently protected process,
+not a digest supplied inside the same untrusted export. Source quotes,
+privacy review, reviewer identity, customer consent and operation
+idempotency remain distinct requirements. This branch does not install a
+device sensor, send data to Protect Me Two, or activate a production
+containment actuator. Browser checkup answers remain local to the browser.
+
+Run npm test; test/model-one.test.mjs and test/medusa-guard.test.mjs
+cover tampering, signature, freshness, scope, veto and authority separation.
