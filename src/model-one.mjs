@@ -154,13 +154,25 @@ export function createEvidenceReceipt({ id, event, identity, evidenceRefs = [], 
 }
 
 export function verifyEvidenceReceipt(receipt, secret = null) {
-  if (!receipt?.receipt || !receipt?.receiptKind) return false;
+  // A public checksum proves only content consistency, not provenance.
+  // Never allow an unsigned receipt to assert the signed 'verified' state.
+  if (!receipt || !/^[a-f0-9]{64}$/i.test(String(receipt.receipt ?? ''))) return false;
+  if (!['hmac-sha256', 'sha256-unauthenticated'].includes(receipt.receiptKind)) return false;
+  if (!Array.isArray(receipt.evidenceRefs)) return false;
+  if (!receipt.evidenceRefs.every((ref) => typeof ref === 'string' && ref.trim())) return false;
+  if (receipt.authority?.level !== 'evidence_only' || receipt.authority.canAuthorize !== false) return false;
+
+  const expectedState = receipt.evidenceRefs.length === 0
+    ? 'unknown'
+    : receipt.receiptKind === 'hmac-sha256' ? 'verified' : 'inferred';
+  if (receipt.state !== expectedState) return false;
   if (receipt.receiptKind === 'hmac-sha256' && !secret) return false;
+
   const { receipt: supplied, ...core } = receipt;
   const expected = digest(receipt.receiptKind, canonical(core), secret);
-  const a = Buffer.from(String(supplied), 'hex');
+  const a = Buffer.from(supplied, 'hex');
   const b = Buffer.from(expected, 'hex');
-  return a.length === b.length && a.length > 0 && timingSafeEqual(a, b);
+  return a.length === b.length && timingSafeEqual(a, b);
 }
 
 export function evaluateReceiptStaleness(receipt, currentIdentity) {
