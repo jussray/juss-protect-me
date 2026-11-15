@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { createHash } from 'node:crypto';
 import test from 'node:test';
 
 import {
@@ -62,6 +63,31 @@ test('unsigned receipt never upgrades itself to verified', () => {
   });
   assert.equal(receipt.state, 'inferred');
   assert.equal(receipt.receiptKind, 'sha256-unauthenticated');
+});
+
+test('unsigned evidence cannot self-promote to verified even with a recalculated checksum', () => {
+  const unsigned = createEvidenceReceipt({
+    id: 'PM1-UNSIGNED-001',
+    event,
+    identity,
+    evidenceRefs: ['synthetic://evidence/only'],
+    observedAt: '2026-10-05T18:00:00.000Z',
+  });
+  assert.equal(verifyEvidenceReceipt(unsigned), true);
+  const stable = (value) => Array.isArray(value)
+    ? value.map(stable)
+    : value && typeof value === 'object'
+      ? Object.fromEntries(Object.keys(value).sort().map((key) => [key, stable(value[key])]))
+      : value;
+  const recomputed = (changes) => {
+    const { receipt: unused, ...core } = { ...unsigned, ...changes };
+    void unused;
+    return { ...core, receipt: createHash('sha256').update(JSON.stringify(stable(core))).digest('hex') };
+  };
+  assert.equal(verifyEvidenceReceipt(recomputed({ state: 'verified' })), false);
+  assert.equal(verifyEvidenceReceipt(recomputed({ receiptKind: 'unknown-checksum' })), false);
+  assert.equal(verifyEvidenceReceipt(recomputed({ authority: { level: 'evidence_only', canAuthorize: true } })), false);
+  assert.equal(verifyEvidenceReceipt(recomputed({ evidenceRefs: [] })), false);
 });
 
 test('identity change makes prior proof stale', () => {
