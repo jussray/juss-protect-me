@@ -152,3 +152,36 @@ test('GEO and AEO answers are visible and match homepage structured data', async
   }
   assert.ok(html.includes('Paid membership enrollment is not open yet'));
 });
+
+test('dedicated member KV cannot overwrite the other product entitlement', async () => {
+  const { readFileSync } = await import('node:fs');
+  const { addUser, listUsers, saveUser } = await import('../platform/store.mjs');
+  const config = JSON.parse(readFileSync(new URL('../wrangler.jsonc', import.meta.url), 'utf8'));
+  const bindings = config.kv_namespaces.filter((binding) => binding.binding === 'USERS_KV');
+  assert.equal(bindings.length, 1, 'exactly one member namespace');
+  assert.equal(bindings[0].id, 'e14225163c7c4fd4bb14bcc9e8f5f610', 'production member namespace must be model-specific');
+  assert.notEqual(bindings[0].id, 'd7c8c098e18b4b78ad9596fc5a9372bf', 'legacy shared namespace must remain unbound');
+  assert.notEqual(bindings[0].id, '0ca2131926744e449af8959b56ff00d7', 'other model namespace must remain unbound');
+
+  const mockKV = () => {
+    const records = new Map();
+    return {
+      async get(key) { return records.get(key) ?? null; },
+      async put(key, value) { records.set(key, value); },
+      async delete(key) { records.delete(key); },
+    };
+  };
+  const one = createStore({ USERS_KV: mockKV() });
+  const two = createStore({ USERS_KV: mockKV() });
+  const email = 'same-customer@example.invalid';
+  await addUser(one, { id: 'one-account', email, plan: 'one', entitlement: 'active' });
+  await addUser(two, { id: 'two-account', email, plan: 'two', entitlement: 'inactive' });
+  assert.equal((await getUserByEmail(one, email)).plan, 'one');
+  assert.equal((await getUserByEmail(two, email)).plan, 'two');
+  const person = await getUserByEmail(one, email);
+  person.entitlement = 'canceled';
+  await saveUser(one, person);
+  assert.equal((await getUserByEmail(two, email)).entitlement, 'inactive', 'Model Two entitlement must not change');
+  assert.equal((await listUsers(one)).length, 1);
+  assert.equal((await listUsers(two)).length, 1);
+});
