@@ -1,7 +1,7 @@
 name: Model One CI
 on:
   push:
-    branches: [main]
+    branches: [main, repair/model-one-receipt-integrity-20261111]
   pull_request:
   workflow_dispatch:
 permissions:
