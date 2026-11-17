@@ -40,11 +40,11 @@ When using Codex for jussray-owned work:
 
 ## Skill Subset
 
-From `skills/juss-authored/`, Codex can assist with:
+From `.claude/skills/`, Codex can assist with:
 - **medusa** (security assessment validation — analysis only, no authorization)
-- **reasoning-stack** patterns (multi-step code analysis)
-- **runtime-kernel** (runtime behavior modeling)
-- **sauce-guard** (security boundary patterns)
+- **reasoning-stack** patterns (multi-step code analysis) — not in this repo yet
+- **runtime-kernel** (runtime behavior modeling) — not in this repo yet
+- **sauce-guard** (security boundary patterns) — not in this repo yet
 
 Not available to Codex:
 - /godmode (founder authority — requires human)
