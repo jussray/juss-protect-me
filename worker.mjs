@@ -1,6 +1,7 @@
 import { createModelOneRoom } from './platform/model-one-room.mjs';
 import { createPayments } from './platform/payments.mjs';
 import { createStore, listUsers, statsFromStore } from './platform/store.mjs';
+import { createEdgeShield } from './platform/edge-shield.mjs';
 
 // Model One's first Worker entry (founder-gated decision, launch 2026-10-25):
 // serves the static site plus the product platform routes — founder room,
@@ -42,7 +43,7 @@ const RESPONSE_HEADERS = Object.freeze({
 
 export default {
   async fetch(request, env, ctx) {
-    const result = await app.fetch(request, env);
+    const result = await createEdgeShield(app).fetch(request, env, ctx);
     const headers = new Headers(result.headers);
     const path = new URL(request.url).pathname;
     for (const [key, value] of Object.entries(RESPONSE_HEADERS)) headers.set(key, value);
